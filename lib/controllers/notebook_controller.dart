@@ -41,7 +41,7 @@ class NotebookController extends GetxController {
     return notebookItems[uid];
   }
 
-  Future<Rx<Directory>> loadDir(String uid) async {
+  Future<Rx<Directory>> loadDir(String uid, {bool recurse = true}) async {
     Directory dir;
     try {
       dir = await noteRepository.getDirectory(uid);
@@ -55,9 +55,12 @@ class NotebookController extends GetxController {
         throw '$uid error when load';
       }
     }
-    if (dir.children != null){
+    if (dir.children != null&&recurse){
       for(String uid in dir.children!){
-        await loadNote(uid);
+        if(uid.startsWith('note'))
+          await loadNote(uid);
+        if(uid.startsWith('directory'))
+          await loadDir(uid,recurse: false);
       }
 
     }

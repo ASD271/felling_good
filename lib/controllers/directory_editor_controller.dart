@@ -27,11 +27,12 @@ class DirectoryEditorController extends GetxController {
   }
 
   void save() {
-    notebookController.refreshDir(Directory(title: title,description:description));
+    notebookController.addDir(Directory(title: title,description:description));
     print('$title,$description');
-    Get.dialog(AlertDialog(
-      title: Text('hello'),
-      content: const Text('data'),
-    ));
+    // Get.dialog(AlertDialog(
+    //   title: Text('hello'),
+    //   content: const Text('data'),
+    // ));
+    Get.back();
   }
 }

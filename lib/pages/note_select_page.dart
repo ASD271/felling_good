@@ -22,9 +22,14 @@ class NoteSelectPage extends StatelessWidget {
             heroTag: 'bt1',
           ),
           FloatingActionButton(
-            onPressed: noteSelectPageController.addDirectory,
+            onPressed: noteSelectPageController.editDirectory,
             child: const Icon(Icons.file_open),
             heroTag: 'bt2',
+          ),
+          FloatingActionButton(
+            onPressed: noteSelectPageController.backDirectory,
+            child: const Icon(Icons.arrow_back),
+            heroTag: 'bt3',
           )
         ],
       ),
@@ -58,6 +63,7 @@ class NoteItem extends StatelessWidget {
     return GestureDetector(
       onLongPress: () {print(n.value.title);},
       child: ListTile(
+        leading: Icon(Icons.file_copy_sharp),
         title: TextButton(
           onPressed: () {
             noteSelectPageController.openNote(uid);
@@ -79,11 +85,12 @@ class DirectoryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Rx<Note> n = noteSelectPageController.getNote(uid);
+    Rx<Directory> n = noteSelectPageController.getDir(uid);
     return ListTile(
+      leading: Icon(Icons.store_mall_directory),
       title: TextButton(
         onPressed: () {
-          noteSelectPageController.openNote(uid);
+          noteSelectPageController.openDirectory(uid);
         },
         child: Obx(() => Text('${n.value.title}')),
       ),

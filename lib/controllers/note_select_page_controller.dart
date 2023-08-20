@@ -20,9 +20,13 @@ class NoteSelectPageController extends GetxController {
   RxInt itemNums = 0.obs;
   RxString title=''.obs;
 
+  List<String> history=[];
+
   void refresh(){
     if(currentDir.value.children!=null)
       itemNums.value=currentDir.value.children!.length;
+    else
+      itemNums.value=0;
     if(title.value!=currentDir.value.title)
       title.value=currentDir.value.title;
   }
@@ -34,6 +38,16 @@ class NoteSelectPageController extends GetxController {
   }
 
   Rx<Note> getNote(String uid){
+    if(!uid.startsWith('note')){
+      throw 'note uid not right: ${uid}';
+    }
+    return notebookController.notebookItems[uid];
+  }
+
+  Rx<Directory> getDir(String uid){
+    if(!uid.startsWith('directory')){
+      throw 'directory uid not right: ${uid}';
+    }
     return notebookController.notebookItems[uid];
   }
 
@@ -43,7 +57,25 @@ class NoteSelectPageController extends GetxController {
     ]);
   }
 
-  void addDirectory() {
+  void editDirectory() {
     Get.to(()=>DirectoryEditorPage());
+  }
+
+  void openDirectory(String uid) async{
+    assert(uid.startsWith('directory'),'dir uid not right ${uid}');
+    history.add(currentDir.value.uid);
+    currentDir.value=(await notebookController.loadDir(uid)).value;
+    refresh();
+    print('${itemNums}   ${currentDir.value.children}');
+  }
+
+  void backDirectory() async{
+    if(history.isEmpty){
+      print(history);
+      return;
+    }
+    String uid=history.removeLast();
+    currentDir.value=(await notebookController.loadDir(uid)).value;
+    refresh();
   }
 }

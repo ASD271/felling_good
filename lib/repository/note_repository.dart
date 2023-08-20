@@ -17,8 +17,10 @@ class NoteRepository{
     if(!uid.startsWith('directory')){
       throw "$uid error when get directory";
     }
-    var dy=await noteDatabase.getDynamic(uid);
-    if(dy==null) throw 'error dir uid not exist';
+    Directory? dy=await noteDatabase.getDynamic(uid);
+    if(dy==null) {
+     throw 'dir uid not exist';
+    };
     return  dy as Directory;
   }
 

@@ -25,7 +25,7 @@ class EditorPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
+    return GetBuilder<EditorController>(builder: (controller){
       if (editorController.inited.value) {
         final _controller = editorController.controller;
         // if (_controller == null) {

@@ -2,13 +2,16 @@ import 'package:get/get.dart';
 import 'package:note_database/note_database.dart';
 
 import '../repository/note_repository.dart';
+import 'note_select_page_controller.dart';
 
 class NotebookController extends GetxController {
   RxBool inited = false.obs;
   NoteRepository noteRepository = NoteRepository();
+  NoteSelectPageController get noteSelectPageController =>
+      GetInstance().find<NoteSelectPageController>();
   Map<String, dynamic> notebookItems = {};
-  // Map<String, NoteItem> items = {};
 
+  // Map<String, NoteItem> items = {};
 
   @override
   void onInit() async {
@@ -31,8 +34,6 @@ class NotebookController extends GetxController {
   //   return noteItem;
   // }
 
-
-
   Future<Rx<Note>> loadNote(String uid) async {
     var note = await noteRepository.getNote(uid);
     var rNote = note.obs;
@@ -41,34 +42,47 @@ class NotebookController extends GetxController {
   }
 
   Future<Rx<Directory>> loadDir(String uid) async {
-    var dir = await noteRepository.getDirectory(uid);
-    if (uid == 'directory-root') {
-      dir = Directory(uid: uid, title: 'root');
-      addDir(dir);
-      print('save dir root');
+    Directory dir;
+    try {
+      dir = await noteRepository.getDirectory(uid);
+    } catch (e) {
+      if (uid == 'directory-root') {
+        dir = Directory(uid: uid, title: 'root');
+        refreshDir(dir);
+        print('save dir root');
+      }
+      else{
+        throw '$uid error when load';
+      }
+    }
+    if (dir.children != null){
+      for(String uid in dir.children!){
+        await loadNote(uid);
+      }
+
     }
     var rDir = dir.obs;
     notebookItems[uid] = rDir;
     return rDir;
   }
 
-  Future<void> addDir(Directory dir) async {
+  Future<void> refreshDir(Directory dir) async {
     // if (items.containsKey(dir.uid)) {
     //   items[dir.uid] = NoteItem(dir.uid,title: dir.title,desc: dir.description);
     // } else {
     //   // items[dir.uid] = dir.obs;
     // }
-    if(notebookItems.containsKey(dir)){
-      notebookItems[dir.uid].value=dir;
+    // dirAddChild(noteSelectPageController.currentDir.value.uid, dir.uid);
+    if (notebookItems.containsKey(dir)) {
       notebookItems[dir].refresh();
-    }
-    else{
-      notebookItems[dir.uid]=dir.obs;
+      print('refresh.... ${dir.children}');
+    } else {
+      notebookItems[dir.uid] = dir.obs;
     }
     await noteRepository.saveDir(dir);
   }
 
-  Future<void> addNote(Note note) async {
+  Future<void> refreshNote(Note note) async {
     if (notebookItems.containsKey(note.uid)) {
       // Note x = note.copyWith();
       // items[note.uid].value = x;
@@ -83,20 +97,27 @@ class NotebookController extends GetxController {
       notebookItems[note.uid] = note.obs;
       print('not containds');
     }
-    // await noteRepository.saveNote(note);
+    await noteRepository.saveNote(note);
   }
 
-  void dirAddChild(String dirUid, String noteUid) async{
+  void dirAddChild(String parentDirUid, String noteUid) async {
     //check if noteUid in dir, if not, add it in the dir
-    print(dirUid);
-    Directory dir = await noteRepository.getDirectory(dirUid);
-    if (dir.children == null || !(dir.children!.contains(noteUid))) {
-      dir.children ??= [];
-      print('${dir.uid}   ${dir.children}');
 
-      dir.children!.add(noteUid);
-      addDir(dir);
+    Directory parentDir = notebookItems[parentDirUid].value;
+    print('$parentDirUid  ready... ${parentDir.children}');
+    if (parentDir.children == null || !(parentDir.children!.contains(noteUid))) {
+      parentDir.children ??= [];
+      print('${parentDir.uid} ----- ${parentDir.children}');
+
+      parentDir.children!.add(noteUid);
+      refreshDir(parentDir);
+      noteSelectPageController.refresh();
     }
+  }
+
+  void addDir(Directory dir){
+    dirAddChild(noteSelectPageController.currentDir.value.uid, dir.uid);
+    refreshDir(dir);
   }
 }
 

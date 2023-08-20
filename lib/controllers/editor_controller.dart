@@ -36,7 +36,7 @@ class EditorController extends GetxController {
     } else {
       Note tempNote=Note();
       noteUid = tempNote.uid;
-      notebookController.addNote(tempNote);
+      notebookController.refreshNote(tempNote);
     }
     await _loadFromRepository();
     print('after load');
@@ -48,6 +48,7 @@ class EditorController extends GetxController {
       refreshNote();
     });
     inited.value = true;
+    update();
   }
 
   late String noteUid;
@@ -84,7 +85,7 @@ class EditorController extends GetxController {
     controller.document.changes.listen((DocChange event) {
       if(dirty==0){
         print('dir add note');
-        // notebookController.dirAddChild(parentDirUid, note.uid);
+        notebookController.dirAddChild(parentDirUid, note.uid);
       }
 
       note.jsonContent=jsonEncode(controller.document.toDelta().toJson());
@@ -97,18 +98,18 @@ class EditorController extends GetxController {
     // print('running refresh...');
     if(dirty==2){
       dirty=1;
-      await notebookController.addNote(note);
+      await notebookController.refreshNote(note);
       print('saved');
     }
   }
 
   void setTitle(String title){
     note.title=title;
-    // if(dirty==0){
-    //   print('dir add note');
-    //   notebookController.dirAddChild(parentDirUid, note.uid);
-    // }
-    notebookController.addNote(note);
+    if(dirty==0){
+      print('dir add note');
+      notebookController.dirAddChild(parentDirUid, note.uid);
+    }
+    notebookController.refreshNote(note);
     // dirty=2;
   }
 

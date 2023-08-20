@@ -13,22 +13,19 @@ class NoteSelectPageController extends GetxController {
   void onInit() async {
     super.onInit();
     currentDir = await notebookController.loadDir('directory-root');
-    title.value = currentDir.value.title;
-    if (currentDir.value.children != null){
-      for(String uid in currentDir.value.children!){
-        await notebookController.loadNote(uid);
-      }
-      itemNums.value = currentDir.value.children!.length;
-      print( '${currentDir.value.children!}, ${itemNums}');
-    }
-
-
-
+    refresh();
   }
 
   late Rx<Directory> currentDir;
   RxInt itemNums = 0.obs;
-  RxString title = 'null'.obs;
+  RxString title=''.obs;
+
+  void refresh(){
+    if(currentDir.value.children!=null)
+      itemNums.value=currentDir.value.children!.length;
+    if(title.value!=currentDir.value.title)
+      title.value=currentDir.value.title;
+  }
 
   void addNote() {
     Get.to(()=>EditorPage(),arguments: [
@@ -38,10 +35,6 @@ class NoteSelectPageController extends GetxController {
 
   Rx<Note> getNote(String uid){
     return notebookController.notebookItems[uid];
-  }
-
-  Note getN(String uid){
-    return notebookController.notebookItems[uid].value!;
   }
 
   void openNote(String uid) async{

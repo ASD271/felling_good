@@ -59,7 +59,8 @@ class EditorPage extends StatelessWidget {
                 ),
                 icon: const Icon(Icons.text_fields_rounded),
               ),
-              IconButton(onPressed: () => editorController.back(), icon: const Icon(Icons.arrow_back))
+              IconButton(onPressed: () => editorController.back(), icon: const Icon(Icons.arrow_back)),
+              IconButton(onPressed: ()=>editorController.searchComponent.findText(), icon: Icon(Icons.search))
             ],
           ),
           drawer: Container(

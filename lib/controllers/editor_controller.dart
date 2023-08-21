@@ -41,6 +41,8 @@ class EditorController extends GetxController {
     await _loadFromRepository();
     print('after load');
     // editorActions = EditorActions(controller);
+    searchComponent=SearchComponent(controller);
+
     editorActions = EditorActions();
     parentDirUid=args['parentDirUid'];
 
@@ -65,6 +67,7 @@ class EditorController extends GetxController {
   late QuillController controller;
   final FocusNode focusNode = FocusNode();
   late final EditorActions editorActions;
+  late final SearchComponent searchComponent;
   int dirty=0; // 0 represent not used, 1 represent is not dirty, 2 represent is dirty now
 
   Future<void> _loadFromRepository() async {
@@ -200,4 +203,105 @@ class EditorActions {
   void dispose() {
     _selectAllTimer?.cancel();
   }
+}
+
+class SearchComponent{
+  late String _text;
+  late TextEditingController _controller;
+  late List<int>? _offsets;
+  late int _index;
+  bool _caseSensitive = false;
+  bool _wholeWord = false;
+
+  SearchComponent(this.quillController) {
+    _text = '';
+    _offsets = null;
+    _index = 0;
+    _controller = TextEditingController(text: _text);
+  }
+  final QuillController quillController;
+
+  void findText() {
+    print('hello world');
+    print(_text.isEmpty);
+    _text='tag';
+    if (_text.isEmpty) {
+      return;
+    }
+
+    _text='tag';
+    print(_text);
+    // setState(() {
+      _offsets = quillController.document.search(
+        _text,
+        caseSensitive: _caseSensitive,
+        wholeWord: _wholeWord,
+      );
+      _index = 0;
+    // });
+    print(_offsets);
+    if (_offsets!.isNotEmpty) {
+      _moveToPosition();
+    }
+  }
+
+  void _moveToPosition() {
+    quillController.updateSelection(
+        TextSelection(
+            baseOffset: _offsets![_index],
+            extentOffset: _offsets![_index] + _text.length),
+        ChangeSource.LOCAL);
+  }
+
+  // void _moveToPrevious() {
+  //   if (_offsets!.isEmpty) {
+  //     return;
+  //   }
+  //   setState(() {
+  //     if (_index > 0) {
+  //       _index -= 1;
+  //     } else {
+  //       _index = _offsets!.length - 1;
+  //     }
+  //   });
+  //   _moveToPosition();
+  // }
+  //
+  // void _moveToNext() {
+  //   if (_offsets!.isEmpty) {
+  //     return;
+  //   }
+  //   setState(() {
+  //     if (_index < _offsets!.length - 1) {
+  //       _index += 1;
+  //     } else {
+  //       _index = 0;
+  //     }
+  //   });
+  //   _moveToPosition();
+  // }
+  //
+  // void _textChanged(String value) {
+  //   setState(() {
+  //     _text = value;
+  //     _offsets = null;
+  //     _index = 0;
+  //   });
+  // }
+  //
+  // void _changeCaseSensitivity() {
+  //   setState(() {
+  //     _caseSensitive = !_caseSensitive;
+  //     _offsets = null;
+  //     _index = 0;
+  //   });
+  // }
+  //
+  // void _changeWholeWord() {
+  //   setState(() {
+  //     _wholeWord = !_wholeWord;
+  //     _offsets = null;
+  //     _index = 0;
+  //   });
+  // }
 }

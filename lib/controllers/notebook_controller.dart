@@ -34,6 +34,11 @@ class NotebookController extends GetxController {
   //   return noteItem;
   // }
 
+  void deleteNote(String uid){
+    notebookItems.remove(uid);
+    noteRepository.deleteNote(uid);
+  }
+
   Future<Rx<Note>> loadNote(String uid) async {
     var note = await noteRepository.getNote(uid);
     var rNote = note.obs;
@@ -113,6 +118,18 @@ class NotebookController extends GetxController {
       print('${parentDir.uid} ----- ${parentDir.children}');
 
       parentDir.children!.add(noteUid);
+      refreshDir(parentDir);
+      noteSelectPageController.refresh();
+    }
+  }
+
+  void dirRemoveChild(String parentDirUid,String noteUid) async{
+    Directory parentDir = notebookItems[parentDirUid].value;
+    print('$parentDirUid  ready... ${parentDir.children}');
+    if (parentDir.children != null &&(parentDir.children!.contains(noteUid))) {
+      print('remove child from dir ${parentDir.uid} ----- ${parentDir.children}');
+
+      parentDir.children!.remove(noteUid);
       refreshDir(parentDir);
       noteSelectPageController.refresh();
     }

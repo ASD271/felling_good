@@ -13,6 +13,10 @@ class NoteRepository{
     return noteDatabase.getNote(uid);
   }
 
+  Future<void> deleteNote(String uid) async{
+    return noteDatabase.deleteNote(uid);
+  }
+
   Future<Directory> getDirectory(String uid) async{
     if(!uid.startsWith('directory')){
       throw "$uid error when get directory";

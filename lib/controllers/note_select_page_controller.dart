@@ -37,6 +37,12 @@ class NoteSelectPageController extends GetxController {
     ]);
   }
 
+  void deleteNote(String uid){
+    assert(uid.startsWith('note'),'uid not started with note when remove note');
+    notebookController.dirRemoveChild(currentDir.value.uid, uid);
+    notebookController.deleteNote(uid);
+  }
+
   Rx<Note> getNote(String uid){
     if(!uid.startsWith('note')){
       throw 'note uid not right: ${uid}';

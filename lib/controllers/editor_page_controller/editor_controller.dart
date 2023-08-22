@@ -9,8 +9,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_quill/extensions.dart';
 import 'package:flutter_quill/flutter_quill.dart' hide Text;
 
-import 'notebook_controller.dart';
+import '../notebook_controller.dart';
 import 'dart:async';
+import 'header.dart';
 
 enum _SelectionType {
   none,
@@ -42,6 +43,8 @@ class EditorController extends GetxController {
     print('after load');
     // editorActions = EditorActions(controller);
     searchComponent=SearchComponent(controller);
+    headerNavigationComponent=HeaderNavigationComponent(controller);
+    headerNavigationComponent.updateHeader();
 
     editorActions = EditorActions();
     parentDirUid=args['parentDirUid'];
@@ -68,6 +71,7 @@ class EditorController extends GetxController {
   final FocusNode focusNode = FocusNode();
   late final EditorActions editorActions;
   late final SearchComponent searchComponent;
+  late final HeaderNavigationComponent headerNavigationComponent;
   int dirty=0; // 0 represent not used, 1 represent is not dirty, 2 represent is dirty now
 
   Future<void> _loadFromRepository() async {
@@ -114,6 +118,14 @@ class EditorController extends GetxController {
     }
     notebookController.refreshNote(note);
     // dirty=2;
+  }
+
+  void moveToPosition(int offset, {int? extentOffset}){
+    controller.updateSelection(
+        TextSelection(
+            baseOffset: offset,
+            extentOffset: extentOffset??offset),
+        ChangeSource.LOCAL);
   }
 
   void back(){
@@ -305,3 +317,4 @@ class SearchComponent{
   //   });
   // }
 }
+

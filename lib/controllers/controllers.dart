@@ -3,7 +3,7 @@ import 'package:felling_good/controllers/note_select_page_controller.dart';
 import 'package:felling_good/controllers/notebook_controller.dart';
 import 'package:get/get.dart';
 import 'home_page_controller.dart';
-import 'editor_controller.dart'
+import 'editor_page_controller/editor_controller.dart'
 ;
 class Bind extends Bindings {
   @override

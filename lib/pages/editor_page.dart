@@ -15,7 +15,8 @@ import 'package:get/get.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
-import '../controllers/editor_controller.dart';
+import '../controllers/editor_page_controller/editor_controller.dart';
+import '../controllers/editor_page_controller/header.dart';
 import '../universal_ui/universal_ui.dart';
 import '../widgets/time_stamp_embed_widget.dart';
 import 'read_only_page.dart';
@@ -25,7 +26,7 @@ class EditorPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<EditorController>(builder: (controller){
+    return GetBuilder<EditorController>(builder: (controller) {
       if (editorController.inited.value) {
         final _controller = editorController.controller;
         // if (_controller == null) {
@@ -59,15 +60,21 @@ class EditorPage extends StatelessWidget {
                 ),
                 icon: const Icon(Icons.text_fields_rounded),
               ),
-              IconButton(onPressed: () => editorController.back(), icon: const Icon(Icons.arrow_back)),
-              IconButton(onPressed: ()=>editorController.searchComponent.findText(), icon: Icon(Icons.search))
+              IconButton(
+                  onPressed: () => editorController.back(), icon: const Icon(Icons.arrow_back)),
+              IconButton(
+                  onPressed: () => editorController.searchComponent.findText(),
+                  icon: Icon(Icons.search))
             ],
           ),
           drawer: Container(
-            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
+            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.3),
             color: Colors.grey.shade800,
-            child: _buildMenuBar(context),
+            child: _sideMenu(context),
           ),
+          onDrawerChanged: (bool opened) {
+            if (opened) editorController.headerNavigationComponent.updateHeader();
+          },
           body: _buildWelcomeEditor(context),
         );
       } else {
@@ -303,13 +310,15 @@ class EditorPage extends StatelessWidget {
         ),
       );
 
-  Widget _buildMenuBar(BuildContext context) {
+  Widget _sideMenu(BuildContext context) {
     final size = MediaQuery.of(context).size;
     const itemStyle = TextStyle(
       color: Colors.white,
       fontSize: 18,
       fontWeight: FontWeight.bold,
     );
+    editorController.headerNavigationComponent.updateHeader();
+    print('build');
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -319,12 +328,31 @@ class EditorPage extends StatelessWidget {
           indent: size.width * 0.1,
           endIndent: size.width * 0.1,
         ),
-        ListTile(
-          title: const Center(child: Text('Read only demo', style: itemStyle)),
-          dense: true,
-          visualDensity: VisualDensity.compact,
-          onTap: _readOnly,
+        Expanded(
+          child: Obx(
+            () => ListView.builder(
+                itemCount: editorController.headerNavigationComponent.length,
+                itemBuilder: (context, index) {
+                  Header header = editorController.headerNavigationComponent.headers[index];
+                  return TextButton(
+                      onPressed: () {
+                        editorController.moveToPosition(header.offset,
+                            extentOffset: header.offset + header.text.length);
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                        header.text,
+                        style: TextStyle(fontSize: header.value == 1 ? 24 : 16),
+                      ));
+                }),
+          ),
         ),
+        // ListTile(
+        //   title: const Center(child: Text('hello nav', style: itemStyle)),
+        //   dense: true,
+        //   visualDensity: VisualDensity.compact,
+        //   onTap: _readOnly,
+        // ),
         Divider(
           thickness: 2,
           color: Colors.white,

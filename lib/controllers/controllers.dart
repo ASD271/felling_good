@@ -1,5 +1,5 @@
 import 'package:felling_good/controllers/directory_editor_controller.dart';
-import 'package:felling_good/controllers/note_select_page_controller.dart';
+import 'package:felling_good/controllers/note_select/note_select_page_controller.dart';
 import 'package:felling_good/controllers/notebook_controller.dart';
 import 'package:get/get.dart';
 import 'home_page_controller.dart';

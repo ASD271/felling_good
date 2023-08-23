@@ -1,4 +1,3 @@
-import 'package:felling_good/repository/note_repository.dart';
 import 'package:get/get.dart';
 import 'package:note_database/note_database.dart';
 import 'package:flutter_quill/flutter_quill.dart';
@@ -6,11 +5,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_quill/extensions.dart';
 import 'package:flutter_quill/flutter_quill.dart' hide Text;
 
 import '../notebook_controller.dart';
-import 'dart:async';
 import 'header.dart';
 
 enum _SelectionType {
@@ -129,15 +126,13 @@ class EditorController extends GetxController {
   }
 
   void back(){
-    if(dirty!=0)
+    if(dirty==2)
     {
-      print(notebookController.notebookItems.keys);
-      print(notebookController.notebookItems.containsKey(note.uid));
-      notebookController.notebookItems[note.uid].value=note;
       refreshNote();
       print('back refresh');
     }
     _timer.cancel();
+    notebookController.noteSelectPageController.updateDirectory();
     Get.back();
   }
 }

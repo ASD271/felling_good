@@ -6,13 +6,16 @@ import 'package:felling_good/repository/note_repository.dart';
 import 'package:get/get.dart';
 import 'package:note_database/note_database.dart';
 import 'package:flutter_quill/flutter_quill.dart';
-import '../pages/editor_page.dart';
+import '../../pages/editor_page.dart';
 import 'package:intl/intl.dart';
+part 'sort_rules.dart';
+typedef Compare<E> = int Function(E a, E b);
 
 class NoteSelectPageController extends GetxController {
   // NoteRepository noteRepository = NoteRepository();
   NotebookController get notebookController => GetInstance().find<NotebookController>();
   RxList<String> uids=([].cast<String>()).obs;
+  bool reversed=false;
   @override
   void onInit() async {
     super.onInit();
@@ -22,6 +25,9 @@ class NoteSelectPageController extends GetxController {
     uidsSort();
     update();
   }
+
+  Compare<String>? sortRule;
+
 
   void uidsGetCurrentChildren(){
     uids.clear();
@@ -33,7 +39,17 @@ class NoteSelectPageController extends GetxController {
   }
 
   void uidsSort(){
-    uids.sort();
+    if(uids.isEmpty) return;
+    uids.sort(sortRule);
+    uids.reversed;
+    if(reversed){
+      uids.value=uids.reversed.toList();
+    }
+  }
+
+  void sortAccordingRule(Compare<String> rule){
+    sortRule=rule;
+    updateDirectory();
   }
 
   late Rx<Directory> currentDir;

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:felling_good/controllers/home_page_controller.dart';
-import 'package:felling_good/controllers/note_select_page_controller.dart';
+import 'package:felling_good/controllers/note_select/note_select_page_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:note_database/note_database.dart';
@@ -32,6 +32,45 @@ class NoteSelectPage extends StatelessWidget {
             onPressed: noteSelectPageController.backDirectory,
             child: const Icon(Icons.arrow_back),
             heroTag: 'bt3',
+          ),
+          FloatingActionButton(
+            onPressed: () {
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    return SimpleDialog(
+                      title: Text('sort'),
+                      children: [
+                        SimpleDialogOption(
+                          onPressed: () {
+                            noteSelectPageController
+                                .sortAccordingRule(noteSelectPageController.sortDefault);
+                            Navigator.pop(context);
+                          },
+                          child: Text('default'),
+                        ),
+                        SimpleDialogOption(
+                          onPressed: () {
+                            noteSelectPageController
+                                .sortAccordingRule(noteSelectPageController.sortCreateTime);
+                            Navigator.pop(context);
+                          },
+                          child: Text('createTime'),
+                        ),
+                        SimpleDialogOption(
+                          onPressed: () {
+                            noteSelectPageController
+                                .sortAccordingRule(noteSelectPageController.sortUpdateTime);
+                            Navigator.pop(context);
+                          },
+                          child: Text('updateTime'),
+                        ),
+                      ],
+                    );
+                  });
+            },
+            child: const Icon(Icons.sort),
+            heroTag: 'bt4',
           )
         ],
       ),
@@ -53,7 +92,7 @@ class NoteFrame extends StatelessWidget {
       children: [
         Expanded(
           child: GetBuilder<NoteSelectPageController>(
-            builder:(controller) => ListView.builder(
+            builder: (controller) => ListView.builder(
               itemCount: noteSelectPageController.itemNums.value,
               itemBuilder: (context, index) {
                 String uid = noteSelectPageController.uids[index];

@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:note_database/note_database.dart';
 
 import '../repository/note_repository.dart';
-import 'note_select_page_controller.dart';
+import 'note_select/note_select_page_controller.dart';
 
 class NotebookController extends GetxController {
   RxBool inited = false.obs;
@@ -91,6 +91,7 @@ class NotebookController extends GetxController {
   }
 
   Future<void> refreshNote(Note note) async {
+    note.itemAttribute.modifyTime=DateTime.now().millisecondsSinceEpoch;
     if (notebookItems.containsKey(note.uid)) {
       // Note x = note.copyWith();
       // items[note.uid].value = x;
@@ -112,6 +113,7 @@ class NotebookController extends GetxController {
     //check if noteUid in dir, if not, add it in the dir
 
     Directory parentDir = notebookItems[parentDirUid].value;
+    parentDir.itemAttribute.modifyTime=DateTime.now().millisecondsSinceEpoch;
     print('$parentDirUid  ready... ${parentDir.children}');
     if (parentDir.children == null || !(parentDir.children!.contains(noteUid))) {
       parentDir.children ??= [];

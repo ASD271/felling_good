@@ -119,7 +119,7 @@ class NotebookController extends GetxController {
 
       parentDir.children!.add(noteUid);
       refreshDir(parentDir);
-      noteSelectPageController.refresh();
+      noteSelectPageController.updateDirectory();
     }
   }
 
@@ -131,13 +131,14 @@ class NotebookController extends GetxController {
 
       parentDir.children!.remove(noteUid);
       refreshDir(parentDir);
-      noteSelectPageController.refresh();
+      noteSelectPageController.updateDirectory();
     }
   }
 
   void addDir(Directory dir){
     dirAddChild(noteSelectPageController.currentDir.value.uid, dir.uid);
     refreshDir(dir);
+    noteSelectPageController.updateDirectory();
   }
 }
 

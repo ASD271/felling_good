@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:felling_good/controllers/home_page_controller.dart';
 import 'package:felling_good/controllers/note_select_page_controller.dart';
 import 'package:flutter/material.dart';
@@ -50,11 +52,11 @@ class NoteFrame extends StatelessWidget {
     return Column(
       children: [
         Expanded(
-          child: Obx(
-            () => ListView.builder(
+          child: GetBuilder<NoteSelectPageController>(
+            builder:(controller) => ListView.builder(
               itemCount: noteSelectPageController.itemNums.value,
               itemBuilder: (context, index) {
-                String uid = noteSelectPageController.currentDir.value.children![index];
+                String uid = noteSelectPageController.uids[index];
                 if (uid.startsWith('note'))
                   return NoteItem(uid);
                 else if (uid.startsWith('directory')) return DirectoryItem(uid);
@@ -78,16 +80,17 @@ class NoteFrame extends StatelessWidget {
 }
 
 class NoteBottomBar extends StatelessWidget {
-  const NoteBottomBar({Key? key}) : super(key: key);
+  NoteBottomBar();
 
   ElevatedButton _elevatedButton() {
     return ElevatedButton(onPressed: () {}, child: Icon(Icons.abc));
   }
 
+  final RxBool _dark = Get.isDarkMode.obs;
+
   @override
   Widget build(BuildContext context) {
-    RxBool _dark=Get.isDarkMode.obs;
-    print('first $_dark   ${Get.isDarkMode}');
+    print('first $_dark   ${Get.isDarkMode}  i ${1 + 5}');
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
@@ -96,10 +99,10 @@ class NoteBottomBar extends StatelessWidget {
               Get.changeTheme(
                 Get.isDarkMode ? ThemeData.light() : ThemeData.dark(),
               );
-              _dark.value=!_dark.value;
+              _dark.value = !_dark.value;
               print(_dark);
             },
-            child: Obx(()=>_dark.value?Icon(Icons.sunny):Icon(Icons.dark_mode))),
+            child: Obx(() => _dark.value ? Icon(Icons.sunny) : Icon(Icons.dark_mode))),
         TextButton(onPressed: () {}, child: Icon(Icons.add)),
         TextButton(onPressed: () {}, child: Icon(Icons.add)),
         TextButton(onPressed: () {}, child: Icon(Icons.add)),
@@ -136,18 +139,33 @@ class NoteItem extends StatelessWidget {
             details.globalPosition.dy,
           ),
           items: <PopupMenuEntry>[
-            PopupMenuItem(child: Text("删除"),onTap: (){noteSelectPageController.deleteNote(uid);},), // Menu Item
-            PopupMenuItem(child: Text("复制")), // Menu Item
+            PopupMenuItem(
+              child: Text("删除"),
+              onTap: () {
+                noteSelectPageController.deleteNote(uid);
+              },
+            ), // Menu Item
+            // PopupMenuItem(child: Text("复制")), // Menu Item
           ],
         );
       },
-      child: ListTile(
-        leading: Icon(Icons.file_copy_sharp),
-        title: TextButton(
-          onPressed: () {
-            noteSelectPageController.openNote(uid);
-          },
-          child: Obx(() => Text('${n.value.title}')),
+      child: TextButton(
+        onPressed: () {
+          noteSelectPageController.openNote(uid);
+        },
+        child: Obx(
+          () => ListTile(
+            leading: Icon(Icons.file_copy_sharp),
+            title: Text('${n.value.title}'),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('${noteSelectPageController.decodeNoteDesc(n.value.jsonContent)}',
+                    overflow: TextOverflow.ellipsis),
+                Text('${noteSelectPageController.getDate(n.value.itemAttribute.createTime)}'),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -165,13 +183,21 @@ class DirectoryItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Rx<Directory> n = noteSelectPageController.getDir(uid);
-    return ListTile(
-      leading: Icon(Icons.store_mall_directory),
-      title: TextButton(
-        onPressed: () {
-          noteSelectPageController.openDirectory(uid);
-        },
-        child: Obx(() => Text('${n.value.title}')),
+    return TextButton(
+      onPressed: () {
+        noteSelectPageController.openDirectory(uid);
+      },
+      child: ListTile(
+        leading: Icon(Icons.store_mall_directory),
+        title: Obx(() => Text('${n.value.title}')),
+        // titleAlignment: ListTileTitleAlignment.threeLine,
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('${n.value.description}', overflow: TextOverflow.ellipsis),
+            Text('${noteSelectPageController.getDate(n.value.itemAttribute.createTime)}'),
+          ],
+        ),
       ),
     );
   }

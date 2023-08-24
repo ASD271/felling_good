@@ -5,6 +5,7 @@ import 'package:felling_good/controllers/note_select/note_select_page_controller
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:note_database/note_database.dart';
+import 'package:i18n_extension/i18n_widget.dart';
 
 class NoteSelectPage extends StatelessWidget {
   NoteSelectPage({Key? key}) : super(key: key);
@@ -14,6 +15,9 @@ class NoteSelectPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // String locale;
+    // locale = I18n.localeStr;
+    // print('now language is $locale');
     return Scaffold(
       appBar: AppBar(
         title: Obx(() => Text(noteSelectPageController.title.value)),
@@ -39,7 +43,7 @@ class NoteSelectPage extends StatelessWidget {
                   context: context,
                   builder: (context) {
                     return SimpleDialog(
-                      title: Text('sort'),
+                      title: Text('sort'.tr),
                       children: [
                         SimpleDialogOption(
                           onPressed: () {
@@ -47,7 +51,7 @@ class NoteSelectPage extends StatelessWidget {
                                 .sortAccordingRule(noteSelectPageController.sortDefault);
                             Navigator.pop(context);
                           },
-                          child: Text('default'),
+                          child: Text('default'.tr),
                         ),
                         SimpleDialogOption(
                           onPressed: () {
@@ -55,7 +59,7 @@ class NoteSelectPage extends StatelessWidget {
                                 .sortAccordingRule(noteSelectPageController.sortCreateTime);
                             Navigator.pop(context);
                           },
-                          child: Text('createTime'),
+                          child: Text('createTime'.tr),
                         ),
                         SimpleDialogOption(
                           onPressed: () {
@@ -63,7 +67,7 @@ class NoteSelectPage extends StatelessWidget {
                                 .sortAccordingRule(noteSelectPageController.sortUpdateTime);
                             Navigator.pop(context);
                           },
-                          child: Text('updateTime'),
+                          child: Text('updateTime'.tr),
                         ),
                       ],
                     );
@@ -130,14 +134,14 @@ class NoteBottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     print('first $_dark   ${Get.isDarkMode}  i ${1 + 5}');
+    final themeData = Theme.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         TextButton(
             onPressed: () {
-              Get.changeTheme(
-                Get.isDarkMode ? ThemeData.light() : ThemeData.dark(),
-              );
+              var t=themeData.copyWith(brightness: Brightness.light);
+              Get.changeThemeMode(Get.isDarkMode?ThemeMode.light:ThemeMode.dark);
               _dark.value = !_dark.value;
               print(_dark);
             },
@@ -162,6 +166,7 @@ class NoteItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeData = Theme.of(context);
     var n = noteSelectPageController.getNote(uid);
     return GestureDetector(
       // onLongPress: () {
@@ -179,7 +184,7 @@ class NoteItem extends StatelessWidget {
           ),
           items: <PopupMenuEntry>[
             PopupMenuItem(
-              child: Text("删除"),
+              child: Text("delete".tr),
               onTap: () {
                 noteSelectPageController.deleteNote(uid);
               },
@@ -194,7 +199,7 @@ class NoteItem extends StatelessWidget {
         },
         child: Obx(
           () => ListTile(
-            leading: Icon(Icons.file_copy_sharp),
+            leading: Icon(Icons.note, color: themeData.cardColor),
             title: Text('${n.value.title}'),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -221,13 +226,17 @@ class DirectoryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeData = Theme.of(context);
     Rx<Directory> n = noteSelectPageController.getDir(uid);
     return TextButton(
       onPressed: () {
         noteSelectPageController.openDirectory(uid);
       },
       child: ListTile(
-        leading: Icon(Icons.store_mall_directory),
+        leading: Icon(
+          Icons.folder,
+          color: themeData.cardColor,
+        ),
         title: Obx(() => Text('${n.value.title}')),
         // titleAlignment: ListTileTitleAlignment.threeLine,
         subtitle: Column(

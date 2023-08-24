@@ -36,7 +36,6 @@ class EditorPage extends StatelessWidget {
 
         return Scaffold(
           appBar: AppBar(
-            backgroundColor: Colors.grey.shade800,
             elevation: 0,
             centerTitle: false,
             title: const Text(
@@ -64,7 +63,7 @@ class EditorPage extends StatelessWidget {
                   onPressed: () => editorController.back(), icon: const Icon(Icons.arrow_back)),
               IconButton(
                   onPressed: () => editorController.searchComponent.findText(),
-                  icon: Icon(Icons.search))
+                  icon: Icon(Icons.search)),
             ],
           ),
           drawer: Container(
@@ -152,7 +151,7 @@ class EditorPage extends StatelessWidget {
           embedBuilders: [...defaultEmbedBuildersWeb, TimeStampEmbedBuilderWidget()]);
     }
     var toolbar = QuillToolbar.basic(
-      controller: editorController.controller!,
+      controller: editorController.controller,
       embedButtons: FlutterQuillEmbeds.buttons(
         // provide a callback to enable picking images from device.
         // if omit, "image" button only allows adding images from url.
@@ -166,27 +165,31 @@ class EditorPage extends StatelessWidget {
       ),
       showAlignmentButtons: true,
       afterButtonPressed: editorController.focusNode.requestFocus,
+      locale: Get.locale,
+
     );
     if (kIsWeb) {
       toolbar = QuillToolbar.basic(
-        controller: editorController.controller!,
+        controller: editorController.controller,
         embedButtons: FlutterQuillEmbeds.buttons(
           onImagePickCallback: _onImagePickCallback,
           webImagePickImpl: _webImagePickImpl,
         ),
         showAlignmentButtons: true,
         afterButtonPressed: editorController.focusNode.requestFocus,
+        locale: Get.locale,
       );
     }
     if (_isDesktop()) {
       toolbar = QuillToolbar.basic(
-        controller: editorController.controller!,
+        controller: editorController.controller,
         embedButtons: FlutterQuillEmbeds.buttons(
           onImagePickCallback: _onImagePickCallback,
           filePickImpl: openFileSystemPickerForDesktop,
         ),
         showAlignmentButtons: true,
         afterButtonPressed: editorController.focusNode.requestFocus,
+        locale: Get.locale,
       );
     }
 
@@ -201,7 +204,6 @@ class EditorPage extends StatelessWidget {
           Expanded(
             flex: 15,
             child: Container(
-              color: Colors.white,
               padding: const EdgeInsets.only(left: 16, right: 16),
               child: quillEditor,
             ),

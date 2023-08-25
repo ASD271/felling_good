@@ -118,6 +118,11 @@ class EditorController extends GetxController {
     // dirty=2;
   }
 
+  void titleSubmit(String title){
+    this.focusNode.requestFocus();
+    moveToPosition(0);
+  }
+
   void moveToPosition(int offset, {int? extentOffset}){
     controller.updateSelection(
         TextSelection(

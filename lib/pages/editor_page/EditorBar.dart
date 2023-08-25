@@ -1,3 +1,4 @@
+import 'package:felling_good/controllers/note_select/note_select_page_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:felling_good/controllers/controllers.dart';
 import 'package:get/get.dart';
@@ -13,6 +14,7 @@ import '../../widgets/time_stamp_embed_widget.dart';
 
 class EditorBar extends StatelessWidget implements PreferredSize {
   EditorController get editorController => GetInstance().find<EditorController>();
+  NoteSelectPageController get noteSelectPageController => GetInstance().find<NoteSelectPageController>();
   const EditorBar({Key? key}) : super(key: key);
 
   @override
@@ -20,8 +22,8 @@ class EditorBar extends StatelessWidget implements PreferredSize {
     return AppBar(
       elevation: 0,
       centerTitle: false,
-      title: const Text(
-        'Flutter Quill',
+      title: Text(
+        noteSelectPageController.currentDir.value.title
       ),
       actions: [
         IconButton(

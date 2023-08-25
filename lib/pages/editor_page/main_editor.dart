@@ -147,6 +147,7 @@ class MainEditor extends StatelessWidget {
           TextField(
             controller: TextEditingController(text: editorController.note.title),
             onChanged: (text) => editorController.setTitle(text),
+            onSubmitted: editorController.titleSubmit,
           ),
           Expanded(
             flex: 15,

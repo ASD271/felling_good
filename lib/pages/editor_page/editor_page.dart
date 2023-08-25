@@ -49,7 +49,7 @@ class EditorPage extends StatelessWidget {
           onDrawerChanged: (bool opened) {
             if (opened) editorController.headerNavigationComponent.updateHeader();
           },
-          body: const MainEditor(),
+          body: Padding(padding:EdgeInsets.all(20),child: const MainEditor()),
         );
       } else {
         return CircularProgressIndicator();

@@ -49,7 +49,7 @@ class EditorBar extends StatelessWidget implements PreferredSize {
       ],
     );
   }
-  static void _insertTimeStamp(QuillController controller, String string) {
+  static void _insertInNewLine(QuillController controller,Embeddable embeddable){
     controller.document.insert(controller.selection.extentOffset, '\n');
     controller.updateSelection(
       TextSelection.collapsed(
@@ -60,7 +60,7 @@ class EditorBar extends StatelessWidget implements PreferredSize {
 
     controller.document.insert(
       controller.selection.extentOffset,
-      TimeStampEmbed(string),
+      embeddable,
     );
 
     controller.updateSelection(
@@ -85,6 +85,9 @@ class EditorBar extends StatelessWidget implements PreferredSize {
       ),
       ChangeSource.LOCAL,
     );
+  }
+  static void _insertTimeStamp(QuillController controller, String string) {
+    _insertInNewLine(controller, TimeStampEmbed(string));
   }
   @override
   Size get preferredSize => Size.fromHeight(kToolbarHeight);

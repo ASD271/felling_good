@@ -34,11 +34,12 @@ class TimeStampEmbedBuilderWidget extends EmbedBuilder {
     bool inline,
     TextStyle textStyle,
   ) {
-    return Row(
-      children: [
-        const Icon(Icons.access_time_rounded),
-        Text(node.value.data as String),
-      ],
+    return SizedBox(
+      width: 400,
+      child: ListTile(
+        leading:  const Icon(Icons.access_time_rounded),
+        title:  Text(node.value.data as String),
+      ),
     );
   }
 }

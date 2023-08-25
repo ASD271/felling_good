@@ -1,4 +1,5 @@
 import 'package:felling_good/pages/editor_page/editor_page.dart';
+import 'package:felling_good/repository/note_repository.dart';
 import 'package:felling_good/repository/note_translation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -7,8 +8,11 @@ import 'controllers/controllers.dart';
 
 import 'pages/home_page.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  var noteRepository=NoteRepository();
+  await noteRepository.init();
+
   runApp(MyApp());
 }
 
@@ -21,10 +25,11 @@ class MyApp extends StatelessWidget {
       title: 'Quill Demo',
       theme: ThemeData(
         primarySwatch: Colors.amber,
-        cardColor: Colors.amberAccent,
+        cardColor: Colors.yellow,
         visualDensity: VisualDensity.adaptivePlatformDensity,
         fontFamily: 'NotoSansSC',
-        canvasColor: Color.fromRGBO(255,251,240,1.0)
+        canvasColor: Color.fromRGBO(255,251,240,1.0),
+        iconTheme: IconThemeData(color: Colors.black)
       ),
       darkTheme: ThemeData.dark().copyWith(primaryColor: Colors.black38),
       localizationsDelegates: [

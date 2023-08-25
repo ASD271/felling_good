@@ -141,7 +141,7 @@ class NoteBottomBar extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        TextButton(onPressed: noteSelectPageController.addNote, child: Icon(Icons.add)),
+        TextButton(onPressed: noteSelectPageController.addNote, child: Icon(Icons.add,color: Get.iconColor)),
         TextButton(onPressed: () {}, child: Icon(Icons.circle)),
         TextButton(onPressed: () {}, child: Icon(Icons.circle)),
         TextButton(onPressed: () {}, child: Icon(Icons.circle)),

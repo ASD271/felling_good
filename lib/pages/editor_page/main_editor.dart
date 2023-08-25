@@ -156,7 +156,7 @@ class MainEditor extends StatelessWidget {
             ),
           ),
           Obx((){
-            if(editorController.showBottomBar.value)
+            if(editorController.showBottomBar.value) {
               return kIsWeb
                   ? Expanded(
                   child: Container(
@@ -164,6 +164,7 @@ class MainEditor extends StatelessWidget {
                     child: toolbar,
                   ))
                   : Container(child: toolbar);
+            }
             return Container();
           })
 

@@ -1,0 +1,95 @@
+import 'package:flutter/material.dart';
+import 'package:felling_good/controllers/controllers.dart';
+import 'package:get/get.dart';
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_quill/flutter_quill.dart' hide Text;
+import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
+
+
+import '../../widgets/time_stamp_embed_widget.dart';
+
+class EditorBar extends StatelessWidget implements PreferredSize {
+  EditorController get editorController => GetInstance().find<EditorController>();
+  const EditorBar({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      elevation: 0,
+      centerTitle: false,
+      title: const Text(
+        'Flutter Quill',
+      ),
+      actions: [
+        IconButton(
+          onPressed: () => _insertTimeStamp(
+            editorController.controller,
+            DateTime.now().toString(),
+          ),
+          icon: const Icon(Icons.add_alarm_rounded),
+        ),
+        IconButton(
+          onPressed: () => showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              content: Text(editorController.controller.document.toPlainText(
+                  [...FlutterQuillEmbeds.builders(), TimeStampEmbedBuilderWidget()])),
+            ),
+          ),
+          icon: const Icon(Icons.text_fields_rounded),
+        ),
+        IconButton(
+            onPressed: () => editorController.back(), icon: const Icon(Icons.arrow_back)),
+        IconButton(
+            onPressed: () => editorController.changeMenu(),
+            icon: Icon(Icons.menu)),
+      ],
+    );
+  }
+  static void _insertTimeStamp(QuillController controller, String string) {
+    controller.document.insert(controller.selection.extentOffset, '\n');
+    controller.updateSelection(
+      TextSelection.collapsed(
+        offset: controller.selection.extentOffset + 1,
+      ),
+      ChangeSource.LOCAL,
+    );
+
+    controller.document.insert(
+      controller.selection.extentOffset,
+      TimeStampEmbed(string),
+    );
+
+    controller.updateSelection(
+      TextSelection.collapsed(
+        offset: controller.selection.extentOffset + 1,
+      ),
+      ChangeSource.LOCAL,
+    );
+
+    controller.document.insert(controller.selection.extentOffset, ' ');
+    controller.updateSelection(
+      TextSelection.collapsed(
+        offset: controller.selection.extentOffset + 1,
+      ),
+      ChangeSource.LOCAL,
+    );
+
+    controller.document.insert(controller.selection.extentOffset, '\n');
+    controller.updateSelection(
+      TextSelection.collapsed(
+        offset: controller.selection.extentOffset + 1,
+      ),
+      ChangeSource.LOCAL,
+    );
+  }
+  @override
+  Size get preferredSize => Size.fromHeight(kToolbarHeight);
+
+  @override
+  // TODO: implement child
+  Widget get child => throw UnimplementedError();
+}

@@ -6,7 +6,7 @@ import 'package:felling_good/repository/note_repository.dart';
 import 'package:get/get.dart';
 import 'package:note_database/note_database.dart';
 import 'package:flutter_quill/flutter_quill.dart';
-import '../../pages/editor_page.dart';
+import '../../pages/editor_page/editor_page.dart';
 import 'package:intl/intl.dart';
 part 'sort_rules.dart';
 typedef Compare<E> = int Function(E a, E b);

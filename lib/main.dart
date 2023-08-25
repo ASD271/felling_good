@@ -1,4 +1,4 @@
-import 'package:felling_good/pages/editor_page.dart';
+import 'package:felling_good/pages/editor_page/editor_page.dart';
 import 'package:felling_good/repository/note_translation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';

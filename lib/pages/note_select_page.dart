@@ -125,6 +125,9 @@ class NoteFrame extends StatelessWidget {
 class NoteBottomBar extends StatelessWidget {
   NoteBottomBar();
 
+  NoteSelectPageController get noteSelectPageController =>
+      GetInstance().find<NoteSelectPageController>();
+
   ElevatedButton _elevatedButton() {
     return ElevatedButton(onPressed: () {}, child: Icon(Icons.abc));
   }
@@ -138,18 +141,18 @@ class NoteBottomBar extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
+        TextButton(onPressed: noteSelectPageController.addNote, child: Icon(Icons.add)),
+        TextButton(onPressed: () {}, child: Icon(Icons.circle)),
+        TextButton(onPressed: () {}, child: Icon(Icons.circle)),
+        TextButton(onPressed: () {}, child: Icon(Icons.circle)),
         TextButton(
             onPressed: () {
-              var t=themeData.copyWith(brightness: Brightness.light);
-              Get.changeThemeMode(Get.isDarkMode?ThemeMode.light:ThemeMode.dark);
+              var t = themeData.copyWith(brightness: Brightness.light);
+              Get.changeThemeMode(Get.isDarkMode ? ThemeMode.light : ThemeMode.dark);
               _dark.value = !_dark.value;
               print(_dark);
             },
             child: Obx(() => _dark.value ? Icon(Icons.sunny) : Icon(Icons.dark_mode))),
-        TextButton(onPressed: () {}, child: Icon(Icons.add)),
-        TextButton(onPressed: () {}, child: Icon(Icons.add)),
-        TextButton(onPressed: () {}, child: Icon(Icons.add)),
-        TextButton(onPressed: () {}, child: Icon(Icons.add)),
         // Container(color: Colors.red,width: 100, height: 30,),
       ],
     );

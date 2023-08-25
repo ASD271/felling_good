@@ -22,6 +22,7 @@ class EditorController extends GetxController {
   // NoteRepository noteRepository = NoteRepository();
   NotebookController get notebookController => GetInstance().find<NotebookController>();
   Note get note=>notebookController.notebookItems[noteUid].value;
+  RxBool showBottomBar=false.obs;
 
 
   @override
@@ -135,6 +136,10 @@ class EditorController extends GetxController {
     notebookController.noteSelectPageController.updateDirectory();
     Get.back();
   }
+
+  void changeMenu(){
+    showBottomBar.value=!showBottomBar.value;
+  }
 }
 
 class EditorActions {
@@ -229,27 +234,22 @@ class SearchComponent{
   final QuillController quillController;
 
   void findText() {
-    print('hello world');
-    print(_text.isEmpty);
-    _text='tag';
-    if (_text.isEmpty) {
-      return;
-    }
-
-    _text='tag';
-    print(_text);
-    // setState(() {
-      _offsets = quillController.document.search(
-        _text,
-        caseSensitive: _caseSensitive,
-        wholeWord: _wholeWord,
-      );
-      _index = 0;
-    // });
-    print(_offsets);
-    if (_offsets!.isNotEmpty) {
-      _moveToPosition();
-    }
+    // if (_text.isEmpty) {
+    //   return;
+    // }
+    // print(_text);
+    // // setState(() {
+    //   _offsets = quillController.document.search(
+    //     _text,
+    //     caseSensitive: _caseSensitive,
+    //     wholeWord: _wholeWord,
+    //   );
+    //   _index = 0;
+    // // });
+    // print(_offsets);
+    // if (_offsets!.isNotEmpty) {
+    //   _moveToPosition();
+    // }
   }
 
   void _moveToPosition() {

@@ -43,6 +43,11 @@ class NoteRepository{
     return noteDatabase.deleteNote(uid);
   }
 
+  Future<void> deleteDirectory(String uid) async{
+    assert(uid.startsWith('directory'),'uid error when note repository delete directory');
+    return noteDatabase.deleteDynamic(uid);
+  }
+
   Future<Directory> getDirectory(String uid) async{
     if(!uid.startsWith('directory')){
       throw "$uid error when get directory";

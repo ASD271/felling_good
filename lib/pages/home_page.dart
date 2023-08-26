@@ -1,5 +1,5 @@
 import 'package:felling_good/controllers/home_page_controller.dart';
-import 'package:felling_good/pages/note_select_page.dart';
+import 'package:felling_good/pages/note_select_page/note_select_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

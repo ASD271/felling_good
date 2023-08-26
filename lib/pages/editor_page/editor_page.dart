@@ -19,12 +19,6 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../controllers/editor_page_controller/editor_controller.dart';
-import '../../controllers/editor_page_controller/header.dart';
-import '../../universal_ui/universal_ui.dart';
-import '../../widgets/time_stamp_embed_widget.dart';
-import '../read_only_page.dart';
-
-import 'package:felling_good/controllers/utils/utils.dart';
 
 class EditorPage extends StatelessWidget {
   EditorController get editorController => GetInstance().find<EditorController>();

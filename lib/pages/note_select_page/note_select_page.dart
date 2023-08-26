@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:note_database/note_database.dart';
 import 'package:i18n_extension/i18n_widget.dart';
+import 'notebook_item.dart';
 
 class NoteSelectPage extends StatelessWidget {
   NoteSelectPage({Key? key}) : super(key: key);
@@ -78,7 +79,12 @@ class NoteSelectPage extends StatelessWidget {
           )
         ],
       ),
-      body: NoteFrame(),
+      body: WillPopScope(
+          onWillPop: () async {
+            bool res=await noteSelectPageController.backDirectory();
+            return !res;
+          },
+          child: NoteFrame()),
     );
   }
 }
@@ -141,7 +147,9 @@ class NoteBottomBar extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        TextButton(onPressed: noteSelectPageController.addNote, child: Icon(Icons.add,color: Get.iconColor)),
+        TextButton(
+            onPressed: noteSelectPageController.addNote,
+            child: Icon(Icons.add, color: Get.iconColor)),
         TextButton(onPressed: () {}, child: Icon(Icons.circle)),
         TextButton(onPressed: () {}, child: Icon(Icons.circle)),
         TextButton(onPressed: () {}, child: Icon(Icons.circle)),
@@ -159,97 +167,3 @@ class NoteBottomBar extends StatelessWidget {
   }
 }
 
-class NoteItem extends StatelessWidget {
-  NoteItem(this.uid);
-
-  final String uid;
-
-  NoteSelectPageController get noteSelectPageController =>
-      GetInstance().find<NoteSelectPageController>();
-
-  @override
-  Widget build(BuildContext context) {
-    final themeData = Theme.of(context);
-    var n = noteSelectPageController.getNote(uid);
-    return GestureDetector(
-      // onLongPress: () {
-      //   print(n.value.title);
-      // },
-      onLongPressStart: (details) {
-        Feedback.forLongPress(context); // Add Feedback
-        showMenu(
-          context: context,
-          position: RelativeRect.fromLTRB(
-            details.globalPosition.dx,
-            details.globalPosition.dy,
-            details.globalPosition.dx,
-            details.globalPosition.dy,
-          ),
-          items: <PopupMenuEntry>[
-            PopupMenuItem(
-              child: Text("delete".tr),
-              onTap: () {
-                noteSelectPageController.deleteNote(uid);
-              },
-            ), // Menu Item
-            // PopupMenuItem(child: Text("复制")), // Menu Item
-          ],
-        );
-      },
-      child: TextButton(
-        onPressed: () {
-          noteSelectPageController.openNote(uid);
-        },
-        child: Obx(
-          () => ListTile(
-            leading: Icon(Icons.note, color: themeData.cardColor),
-            title: Text('${n.value.title}'),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('${noteSelectPageController.decodeNoteDesc(n.value.jsonContent)}',
-                    overflow: TextOverflow.ellipsis),
-                Text('${noteSelectPageController.getDate(n.value.itemAttribute.createTime)}'),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class DirectoryItem extends StatelessWidget {
-  DirectoryItem(this.uid);
-
-  final String uid;
-
-  NoteSelectPageController get noteSelectPageController =>
-      GetInstance().find<NoteSelectPageController>();
-
-  @override
-  Widget build(BuildContext context) {
-    final themeData = Theme.of(context);
-    Rx<Directory> n = noteSelectPageController.getDir(uid);
-    return TextButton(
-      onPressed: () {
-        noteSelectPageController.openDirectory(uid);
-      },
-      child: ListTile(
-        leading: Icon(
-          Icons.folder,
-          color: themeData.cardColor,
-        ),
-        title: Obx(() => Text('${n.value.title}')),
-        // titleAlignment: ListTileTitleAlignment.threeLine,
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('${n.value.description}', overflow: TextOverflow.ellipsis),
-            Text('${noteSelectPageController.getDate(n.value.itemAttribute.createTime)}'),
-          ],
-        ),
-      ),
-    );
-  }
-}

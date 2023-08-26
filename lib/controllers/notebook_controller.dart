@@ -39,6 +39,11 @@ class NotebookController extends GetxController {
     noteRepository.deleteNote(uid);
   }
 
+  void deleteDir(String uid){
+    notebookItems.remove(uid);
+    noteRepository.deleteDirectory(uid);
+  }
+
   Future<Rx<Note>> loadNote(String uid) async {
     var note = await noteRepository.getNote(uid);
     var rNote = note.obs;

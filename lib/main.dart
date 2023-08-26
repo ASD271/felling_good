@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Quill Demo',
+      title: 'FG',
       theme: ThemeData(
         primarySwatch: Colors.amber,
         cardColor: Colors.yellow,

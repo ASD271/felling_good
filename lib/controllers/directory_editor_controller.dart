@@ -26,8 +26,8 @@ class DirectoryEditorController extends GetxController {
     this.description = desc;
   }
 
-  void save() {
-    notebookController.addDir(Directory(title: title,description:description));
+  void save(String parentUid) {
+    notebookController.addDir(parentUid,Directory(title: title,description:description));
     print('$title,$description');
     // Get.dialog(AlertDialog(
     //   title: Text('hello'),

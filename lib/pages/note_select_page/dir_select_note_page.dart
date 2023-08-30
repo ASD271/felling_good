@@ -1,3 +1,4 @@
+import 'package:felling_good/controllers/controllers.dart';
 import 'package:felling_good/controllers/note_select/note_select_page_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -9,25 +10,22 @@ class NoteSelectPage extends StatelessWidget {
 
   NoteSelectPageController get noteSelectPageController =>
       GetInstance().find<NoteSelectPageController>();
+  DirSelectPageController get dirSelectPageController => GetInstance().find<DirSelectPageController>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Obx(() => Text(noteSelectPageController.title.value)),
+        title: Obx(() => Text(dirSelectPageController.title.value)),
         actions: [
           FloatingActionButton(
             onPressed: noteSelectPageController.continueLastOpenedNote,
             heroTag: 'bt1',
             child: const Icon(Icons.keyboard_arrow_right),
           ),
+
           FloatingActionButton(
-            onPressed: noteSelectPageController.editDirectory,
-            heroTag: 'bt2',
-            child: const Icon(Icons.file_open),
-          ),
-          FloatingActionButton(
-            onPressed: noteSelectPageController.backDirectory,
+            onPressed: dirSelectPageController.backDirectory,
             heroTag: 'bt3',
             child: const Icon(Icons.arrow_back),
           ),
@@ -41,7 +39,7 @@ class NoteSelectPage extends StatelessWidget {
                       children: [
                         SimpleDialogOption(
                           onPressed: () {
-                            noteSelectPageController
+                            dirSelectPageController
                                 .sortAccordingRule(noteSelectPageController.sortDefault);
                             Navigator.pop(context);
                           },
@@ -49,7 +47,7 @@ class NoteSelectPage extends StatelessWidget {
                         ),
                         SimpleDialogOption(
                           onPressed: () {
-                            noteSelectPageController
+                            dirSelectPageController
                                 .sortAccordingRule(noteSelectPageController.sortCreateTime);
                             Navigator.pop(context);
                           },
@@ -57,7 +55,7 @@ class NoteSelectPage extends StatelessWidget {
                         ),
                         SimpleDialogOption(
                           onPressed: () {
-                            noteSelectPageController
+                            dirSelectPageController
                                 .sortAccordingRule(noteSelectPageController.sortUpdateTime);
                             Navigator.pop(context);
                           },
@@ -74,7 +72,7 @@ class NoteSelectPage extends StatelessWidget {
       ),
       body: WillPopScope(
           onWillPop: () async {
-            bool res = await noteSelectPageController.backDirectory();
+            bool res = await dirSelectPageController.backDirectory();
             return !res;
           },
           child: const NoteFrame()),
@@ -85,8 +83,9 @@ class NoteSelectPage extends StatelessWidget {
 class NoteFrame extends StatelessWidget {
   const NoteFrame({Key? key}) : super(key: key);
 
-  NoteSelectPageController get noteSelectPageController =>
-      GetInstance().find<NoteSelectPageController>();
+  // NoteSelectPageController get noteSelectPageController =>
+  //     GetInstance().find<NoteSelectPageController>();
+  DirSelectPageController get dirSelectPageController => GetInstance().find<DirSelectPageController>();
 
   @override
   Widget build(BuildContext context) {
@@ -94,15 +93,15 @@ class NoteFrame extends StatelessWidget {
     return Column(
       children: [
         Expanded(
-          child: GetBuilder<NoteSelectPageController>(
+          child: GetBuilder<DirSelectPageController>(
             builder: (controller) => ListView.builder(
-              itemCount: noteSelectPageController.itemNums.value,
+              itemCount: dirSelectPageController.itemNums.value,
               itemBuilder: (context, index) {
-                String uid = noteSelectPageController.uids[index];
+                String uid = dirSelectPageController.uids[index];
                 if (uid.startsWith('note')) {
-                  return NoteItem(uid);
+                  return NoteItem<DirSelectPageController>(uid);
                 } else if (uid.startsWith('directory')) {
-                  return DirectoryItem(uid);
+                  return DirectoryItem<DirSelectPageController>(uid);
                 }
                 return null;
               },

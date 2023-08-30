@@ -1,19 +1,16 @@
-import 'dart:convert';
-
-import 'package:felling_good/controllers/home_page_controller.dart';
-import 'package:felling_good/controllers/note_select/note_select_page_controller.dart';
+import 'package:felling_good/controllers/controllers.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:note_database/note_database.dart';
-import 'package:i18n_extension/i18n_widget.dart';
 
-class NoteItem extends StatelessWidget {
-  NoteItem(this.uid);
+class NoteItem<T extends NoteOperation> extends StatelessWidget {
+  const NoteItem(this.uid, {super.key});
 
   final String uid;
 
   NoteSelectPageController get noteSelectPageController =>
       GetInstance().find<NoteSelectPageController>();
+  T get noteController=>GetInstance().find<T>();
+
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +31,7 @@ class NoteItem extends StatelessWidget {
             PopupMenuItem(
               child: Text("delete".tr),
               onTap: () {
-                noteSelectPageController.deleteNote(uid);
+                noteController.deleteNote(uid);
               },
             ), // Menu Item
             // PopupMenuItem(child: Text("复制")), // Menu Item
@@ -42,18 +39,18 @@ class NoteItem extends StatelessWidget {
         );
       },
       onTap: () {
-        noteSelectPageController.openNote(uid);
+        noteController.openNote(uid);
       },
       child: Obx(
         () => ListTile(
           leading: Icon(Icons.note, color: themeData.cardColor),
-          title: Text('${n.value.title}'),
+          title: Text(n.value.title),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('${noteSelectPageController.decodeNoteDesc(n.value.jsonContent)}',
+              Text(noteSelectPageController.decodeNoteDesc(n.value.jsonContent),
                   overflow: TextOverflow.ellipsis),
-              Text('${noteSelectPageController.getDate(n.value.itemAttribute.createTime)}'),
+              Text(noteSelectPageController.getDate(n.value.itemAttribute.createTime)),
             ],
           ),
         ),
@@ -62,13 +59,15 @@ class NoteItem extends StatelessWidget {
   }
 }
 
-class DirectoryItem extends StatelessWidget {
-  DirectoryItem(this.uid);
+class DirectoryItem<T extends NoteOperation> extends StatelessWidget {
+  const DirectoryItem(this.uid, {super.key});
 
   final String uid;
 
   NoteSelectPageController get noteSelectPageController =>
       GetInstance().find<NoteSelectPageController>();
+
+  T get dirController=>GetInstance().find<T>();
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +75,7 @@ class DirectoryItem extends StatelessWidget {
     Rx<Directory> n = noteSelectPageController.getDir(uid);
     return GestureDetector(
       onTap: () {
-        noteSelectPageController.openDirectory(uid);
+        dirController.openDir(uid);
       },
       onLongPressStart: (details) {
         Feedback.forLongPress(context); // Add Feedback
@@ -92,10 +91,8 @@ class DirectoryItem extends StatelessWidget {
             PopupMenuItem(
               child: Text("delete".tr),
               onTap: () {
-                print('alert hello');
-
                 Future.delayed(
-                    Duration(seconds: 0),
+                    const Duration(seconds: 0),
                     () => showDialog(
                         context: context,
                         builder: (BuildContext context) {
@@ -114,7 +111,7 @@ class DirectoryItem extends StatelessWidget {
                               TextButton(
                                 child: Text("confirm".tr),
                                 onPressed: () {
-                                  noteSelectPageController.deleteDir(uid);
+                                  dirController.deleteDir(uid);
                                   Navigator.pop(context);
                                 },
                               )
@@ -131,14 +128,15 @@ class DirectoryItem extends StatelessWidget {
         leading: Icon(
           Icons.folder,
           color: themeData.cardColor,
+
         ),
-        title: Obx(() => Text('${n.value.title}')),
+        title: Obx(() => Text(n.value.title)),
         // titleAlignment: ListTileTitleAlignment.threeLine,
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('${n.value.description}', overflow: TextOverflow.ellipsis),
-            Text('${noteSelectPageController.getDate(n.value.itemAttribute.createTime)}'),
+            Text(n.value.description, overflow: TextOverflow.ellipsis),
+            Text(noteSelectPageController.getDate(n.value.itemAttribute.createTime)),
           ],
         ),
       ),

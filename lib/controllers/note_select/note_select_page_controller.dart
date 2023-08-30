@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:felling_good/controllers/notebook_controller.dart';
 import 'package:felling_good/pages/directory_editor_page.dart';
 import 'package:felling_good/repository/note_repository.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:note_database/note_database.dart';
 import 'package:flutter_quill/flutter_quill.dart';
@@ -23,11 +24,9 @@ class NoteSelectPageController extends GetxController {
   void onInit() async {
     super.onInit();
     await notebookController.noteBookCompleter.future;
-    currentDir = await notebookController.loadDir('directory-root');
+    // currentDir = await notebookController.loadDir('directory-root');
     getPreference();
-    uidsGetCurrentChildren();
-    refreshChild();
-    uidsSort();
+    // refreshChild();
     update();
   }
 
@@ -49,16 +48,7 @@ class NoteSelectPageController extends GetxController {
     throw 'rule name not exist';
   }
 
-  void uidsGetCurrentChildren() {
-    uids.clear();
-    if (currentDir.value.children != null) {
-      for (var uid in currentDir.value.children!) {
-        uids.add(uid);
-      }
-    }
-  }
-
-  void uidsSort() {
+  void uidsSort(RxList<String> uids) {
     if (uids.isEmpty) return;
     uids.sort(sortRule);
     uids.reversed;
@@ -66,67 +56,65 @@ class NoteSelectPageController extends GetxController {
       uids.value = uids.reversed.toList();
     }
   }
+  //
+  // void sortAccordingRule(Compare<String> rule) {
+  //   sortRule = rule;
+  //   updateDirectory();
+  // }
 
-  void sortAccordingRule(Compare<String> rule) {
-    sortRule = rule;
-    updateDirectory();
-  }
+  // RxInt itemNums = 0.obs;
+  // RxString title = ''.obs;
 
-  late Rx<Directory> currentDir;
-  RxInt itemNums = 0.obs;
-  RxString title = ''.obs;
+  // List<String> dirHistory = [];
 
-  List<String> dirHistory = [];
+  // void refreshChild() {
+  //   if (currentDir.value.children != null) {
+  //     itemNums.value = currentDir.value.children!.length;
+  //   } else {
+  //     itemNums.value = 0;
+  //   }
+  //   if (title.value != currentDir.value.title) {
+  //     title.value = currentDir.value.title;
+  //   }
+  // }
 
-  void refreshChild() {
-    if (currentDir.value.children != null) {
-      itemNums.value = currentDir.value.children!.length;
-    } else {
-      itemNums.value = 0;
-    }
-    if (title.value != currentDir.value.title) {
-      title.value = currentDir.value.title;
-    }
-  }
+  // void addNote() {
+  //   Get.to(() => EditorPage(), arguments: [
+  //     {'parentDirUid': currentDir.value.uid}
+  //   ]);
+  // }
 
-  void addNote() {
-    Get.to(() => EditorPage(), arguments: [
-      {'parentDirUid': currentDir.value.uid}
-    ]);
-  }
-
-  void deleteNote(String uid) {
-    assert(uid.startsWith('note'), 'uid not started with note when remove note');
-    notebookController.dirRemoveChild(currentDir.value.uid, uid);
-    notebookController.deleteNote(uid);
-  }
-
-  void deleteDir(String uid) {
-    assert(uid.startsWith('directory'), 'uid not started with directory when remove directory');
-    Directory dir = notebookController.notebookItems[uid].value;
-    if (dir.children != null) {
-      for (String child in dir.children!) {
-        if (child.startsWith('directory')) {
-          deleteDir(child);
-        } else if (child.startsWith('note')) {
-          deleteNote(child);
-        }
-      }
-    }
-    notebookController.dirRemoveChild(currentDir.value.uid, uid);
-    notebookController.deleteDir(uid);
-  }
+  // void deleteNote(String uid) {
+  //   assert(uid.startsWith('note'), 'uid not started with note when remove note');
+  //   notebookController.deleteNote(uid);
+  // }
+  //
+  // void deleteDir(String parentUid,String uid) {
+  //   assert(uid.startsWith('directory'), 'uid not started with directory when remove directory');
+  //   Directory dir = notebookController.notebookItems[uid].value;
+  //   if (dir.children != null) {
+  //     for (String child in dir.children!) {
+  //       if (child.startsWith('directory')) {
+  //         deleteDir(uid,child);
+  //       } else if (child.startsWith('note')) {
+  //         deleteNote(child);
+  //       }
+  //     }
+  //   }
+  //   notebookController.dirRemoveChild(parentUid, uid);
+  //   notebookController.deleteDir(uid);
+  // }
 
   Rx<Note> getNote(String uid) {
     if (!uid.startsWith('note')) {
-      throw 'note uid not right: ${uid}';
+      throw 'note uid not right: $uid';
     }
     return notebookController.notebookItems[uid];
   }
 
   Rx<Directory> getDir(String uid) {
     if (!uid.startsWith('directory')) {
-      throw 'directory uid not right: ${uid}';
+      throw 'directory uid not right: $uid';
     }
     return notebookController.notebookItems[uid];
   }
@@ -136,9 +124,10 @@ class NoteSelectPageController extends GetxController {
     return DateFormat('yyyy-MM-dd').format(d);
   }
 
-  void openNote(String uid, {String? parentDirUid}) async {
-    Get.to(() => EditorPage(), arguments: [
-      {'parentDirUid': parentDirUid ?? currentDir.value.uid, 'noteUid': uid}
+  Future<void> openNote(String uid) async {
+    String parentDirUid = notebookController.notebookItems[uid].value.parentUid;
+    await Get.to(() => EditorPage(), arguments: [
+      {'parentDirUid': parentDirUid, 'noteUid': uid}
     ]);
   }
 
@@ -146,52 +135,49 @@ class NoteSelectPageController extends GetxController {
     PreferenceInfo preferenceInfo = notebookController.preferenceInfo;
     if (preferenceInfo.lastOpenedNote.isNotEmpty) {
       String noteUid = preferenceInfo.lastOpenedNote[0];
-      openNote(noteUid,
-          parentDirUid: notebookController.notebookItems[noteUid].value.parentUid);
+      openNote(noteUid);
     }
   }
 
   String decodeNoteDesc(String jsonContent) {
-    // String jsonContent=notebookController.notebookItems[uid].value.jsonConten;
     if (jsonContent == '') return '';
     var doc = Document.fromJson(jsonDecode(jsonContent));
     return doc.toPlainText().replaceAll('\n', '  ');
   }
+  //
+  // void editDirectory() {
+  //   Get.to(() => const DirectoryEditorPage());
+  // }
 
-  void editDirectory() {
-    Get.to(() => DirectoryEditorPage());
-  }
+  // void updateDirectory() {
+  //   refreshChild();
+  //   uidsGetCurrentChildren();
+  //   uidsSort();
+  //   update();
+  // }
 
-  void updateDirectory() {
-    refreshChild();
-    uidsGetCurrentChildren();
-    uidsSort();
-    update();
-  }
-
-  void openDirectory(String uid) async {
-    assert(uid.startsWith('directory'), 'dir uid not right ${uid}');
-    dirHistory.add(currentDir.value.uid);
-    currentDir.value = (await notebookController.loadDir(uid)).value;
-    print('${itemNums}   ${currentDir.value.children}');
-    updateDirectory();
-  }
-
-  Future<bool> backDirectory() async {
-    if (dirHistory.isEmpty) {
-      print(dirHistory);
-      return false;
-    }
-    String uid = dirHistory.removeLast();
-    currentDir.value = (await notebookController.loadDir(uid)).value;
-    updateDirectory();
-    return true;
-  }
+  // void openDirectory(String uid) async {
+  //   assert(uid.startsWith('directory'), 'dir uid not right $uid');
+  //   dirHistory.add(currentDir.value.uid);
+  //   currentDir.value = (await notebookController.loadDir(uid)).value;
+  //   debugPrint('$itemNums   ${currentDir.value.children}');
+  //   updateDirectory();
+  // }
+  //
+  // Future<bool> backDirectory() async {
+  //   if (dirHistory.isEmpty) {
+  //     print(dirHistory);
+  //     return false;
+  //   }
+  //   String uid = dirHistory.removeLast();
+  //   currentDir.value = (await notebookController.loadDir(uid)).value;
+  //   updateDirectory();
+  //   return true;
+  // }
 
   Map<String, int> analyseDir(String uid) {
     Directory dir = notebookController.notebookItems[uid].value;
-    int numDir = 0,
-        numNote = 0;
+    int numDir = 0, numNote = 0;
     dir.children?.forEach((String element) {
       if (element.startsWith('directory')) {
         numDir++;

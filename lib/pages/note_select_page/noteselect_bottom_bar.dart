@@ -1,4 +1,4 @@
-import 'package:felling_good/controllers/note_select/note_select_page_controller.dart';
+import 'package:felling_good/controllers/controllers.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -7,7 +7,7 @@ class NoteBottomBar extends StatelessWidget {
 
   NoteSelectPageController get noteSelectPageController =>
       GetInstance().find<NoteSelectPageController>();
-
+  DirSelectPageController get dirSelectPageController => GetInstance().find<DirSelectPageController>();
   final RxBool _dark = Get.isDarkMode.obs;
 
   @override
@@ -16,12 +16,16 @@ class NoteBottomBar extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         TextButton(
-            onPressed: noteSelectPageController.addNote,
+            onPressed: dirSelectPageController.addNote,
             child: Icon(Icons.add, color: Get.iconColor)),
+        TextButton(
+          onPressed: dirSelectPageController.editDirectory,
+          child: Icon(Icons.file_open,color: Get.iconColor),
+        ),
         TextButton(onPressed: () {
           print(noteSelectPageController.notebookController.preferenceInfo.lastOpenedNote);
         }, child: const Icon(Icons.history)),
-        TextButton(onPressed: () {}, child: const Icon(Icons.circle)),
+
         TextButton(onPressed: () {}, child: const Icon(Icons.circle)),
         TextButton(
             onPressed: () {

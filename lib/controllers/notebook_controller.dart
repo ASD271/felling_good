@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:felling_good/utils/extension.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:note_database/note_database.dart';
 
@@ -10,43 +11,48 @@ import 'note_select/note_select_page_controller.dart';
 class NotebookController extends GetxController {
   RxBool inited = false.obs;
   NoteRepository noteRepository = NoteRepository();
+
   NoteSelectPageController get noteSelectPageController =>
       GetInstance().find<NoteSelectPageController>();
   Map<String, dynamic> notebookItems = {};
   late PreferenceInfo preferenceInfo;
-  Completer<void> noteBookCompleter=Completer();
+  Completer<void> noteBookCompleter = Completer();
 
   // Map<String, NoteItem> items = {};
 
   @override
   void onInit() async {
     super.onInit();
-    preferenceInfo=await noteRepository.getPreferenceInfo();
+    preferenceInfo = await noteRepository.getPreferenceInfo();
     await loadHistory();
     noteBookCompleter.complete();
   }
 
+  Future<void> deleteNote(String uid) async{
+    dirRemoveChild(notebookItems[uid].value.parentUid, uid);
+    if(preferenceInfo.lastOpenedNote.remove(uid)){
+      noteRepository.savePreferenceInfo(preferenceInfo);
+    }
 
-  void deleteNote(String uid){
     notebookItems.remove(uid);
-    noteRepository.deleteNote(uid);
+    await noteRepository.deleteNote(uid);
   }
 
-  void deleteDir(String uid){
+  Future<void> deleteDir(String uid) async{
     notebookItems.remove(uid);
-    noteRepository.deleteDirectory(uid);
+    await noteRepository.deleteDirectory(uid);
   }
 
   Future<Rx<Note>> loadNote(String uid) async {
-    if(notebookItems.containsKey(uid)) return notebookItems[uid];
+    if (notebookItems.containsKey(uid)) return notebookItems[uid];
     var note = await noteRepository.getNote(uid);
     var rNote = note.obs;
     notebookItems[uid] = rNote;
     return notebookItems[uid];
   }
 
-  Future<void> loadHistory() async{
-    for (var child in preferenceInfo.lastOpenedNote){
+  Future<void> loadHistory() async {
+    for (var child in preferenceInfo.lastOpenedNote) {
       await loadNote(child);
     }
   }
@@ -59,20 +65,19 @@ class NotebookController extends GetxController {
       if (uid == 'directory-root') {
         dir = Directory(uid: uid, title: 'root');
         refreshDir(dir);
-        print('save dir root');
-      }
-      else{
+        debugPrint('save dir root');
+      } else {
         throw '$uid error when load';
       }
     }
-    if (dir.children != null&&recurse){
-      for(String uid in dir.children!){
-        if(uid.startsWith('note'))
+    if (dir.children != null && recurse) {
+      for (String uid in dir.children!) {
+        if (uid.startsWith('note')) {
           await loadNote(uid);
-        if(uid.startsWith('directory'))
-          await loadDir(uid,recurse: false);
+        } else if (uid.startsWith('directory')) {
+          await loadDir(uid, recurse: false);
+        }
       }
-
     }
     var rDir = dir.obs;
     notebookItems[uid] = rDir;
@@ -80,31 +85,25 @@ class NotebookController extends GetxController {
   }
 
   Future<void> refreshDir(Directory dir) async {
-    // if (items.containsKey(dir.uid)) {
-    //   items[dir.uid] = NoteItem(dir.uid,title: dir.title,desc: dir.description);
-    // } else {
-    //   // items[dir.uid] = dir.obs;
-    // }
-    // dirAddChild(noteSelectPageController.currentDir.value.uid, dir.uid);
     if (notebookItems.containsKey(dir)) {
       notebookItems[dir].refresh();
-      print('refresh.... ${dir.children}');
+      debugPrint('refresh.... ${dir.children}');
     } else {
       notebookItems[dir.uid] = dir.obs;
     }
     await noteRepository.saveDir(dir);
   }
 
-  Future<void> refreshHistory(String noteUid) async{
+  Future<void> refreshNoteHistory(String noteUid) async {
     preferenceInfo.lastOpenedNote.addToFirst(noteUid);
-    if(preferenceInfo.lastOpenedNote.length>10){
+    if (preferenceInfo.lastOpenedNote.length > 10) {
       preferenceInfo.lastOpenedNote.removeLast();
     }
     await noteRepository.savePreferenceInfo(preferenceInfo);
   }
 
   Future<void> refreshNote(Note note) async {
-    note.itemAttribute.modifyTime=DateTime.now().millisecondsSinceEpoch;
+    note.itemAttribute.modifyTime = DateTime.now().millisecondsSinceEpoch;
     if (notebookItems.containsKey(note.uid)) {
       notebookItems[note.uid].refresh();
     } else {
@@ -117,42 +116,31 @@ class NotebookController extends GetxController {
     //check if noteUid in dir, if not, add it in the dir
 
     Directory parentDir = notebookItems[parentDirUid].value;
-    parentDir.itemAttribute.modifyTime=DateTime.now().millisecondsSinceEpoch;
-    print('$parentDirUid  ready... ${parentDir.children}');
+    parentDir.itemAttribute.modifyTime = DateTime.now().millisecondsSinceEpoch;
     if (parentDir.children == null || !(parentDir.children!.contains(noteUid))) {
       parentDir.children ??= [];
-      print('${parentDir.uid} ----- ${parentDir.children}');
+      debugPrint('${parentDir.uid} ----- ${parentDir.children}');
 
       parentDir.children!.add(noteUid);
       refreshDir(parentDir);
-      noteSelectPageController.updateDirectory();
     }
   }
 
-  void dirRemoveChild(String parentDirUid,String noteUid) async{
+  void dirRemoveChild(String parentDirUid, String noteUid) async {
     Directory parentDir = notebookItems[parentDirUid].value;
-    print('$parentDirUid  ready... ${parentDir.children}');
-    if (parentDir.children != null &&(parentDir.children!.contains(noteUid))) {
-      print('remove child from dir ${parentDir.uid} ----- ${parentDir.children}');
+    if (parentDir.children != null && (parentDir.children!.contains(noteUid))) {
+      debugPrint('remove child from dir ${parentDir.uid} ----- ${parentDir.children}');
 
       parentDir.children!.remove(noteUid);
       refreshDir(parentDir);
-      noteSelectPageController.updateDirectory();
+    }
+    else{
+      debugPrint('$noteUid not exist in $parentDirUid when dir remove child');
     }
   }
 
-  void addDir(Directory dir){
-    dirAddChild(noteSelectPageController.currentDir.value.uid, dir.uid);
+  void addDir(String parentUid,Directory dir) {
+    dirAddChild(parentUid, dir.uid);
     refreshDir(dir);
-    noteSelectPageController.updateDirectory();
   }
-}
-
-class NoteItem {
-  NoteItem(this.uid, {String? title, String? desc})
-      : title = RxString(title ?? ''),
-        desc = RxString(desc ?? '');
-  RxString title;
-  RxString desc;
-  final String uid;
 }

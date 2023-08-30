@@ -13,10 +13,12 @@ void main() async {
   var noteRepository=NoteRepository();
   await noteRepository.init();
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -25,20 +27,20 @@ class MyApp extends StatelessWidget {
       title: 'FG',
       theme: ThemeData(
         primarySwatch: Colors.amber,
-        cardColor: Colors.yellow,
+        cardColor: const Color.fromRGBO(217,173,10,1.0),
         visualDensity: VisualDensity.adaptivePlatformDensity,
         fontFamily: 'NotoSansSC',
-        canvasColor: Color.fromRGBO(255,251,240,1.0),
-        iconTheme: IconThemeData(color: Colors.black)
+        canvasColor: const Color.fromRGBO(255,251,240,1.0),
+        iconTheme: const IconThemeData(color: Colors.black)
       ),
       darkTheme: ThemeData.dark().copyWith(primaryColor: Colors.black38),
-      localizationsDelegates: [
+      localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
       translations: NoteTranslation(),
-      locale: Locale('zh','CN'),
+      locale: const Locale('zh','CN'),
       // supportedLocales: [
       //   const Locale('en', 'US'),
       //   const Locale('zh', 'HK'),

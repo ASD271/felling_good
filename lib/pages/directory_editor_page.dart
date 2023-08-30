@@ -5,7 +5,8 @@ import '../controllers/directory_editor_controller.dart';
 class DirectoryEditorPage extends StatelessWidget {
   DirectoryEditorController get dirController => GetInstance().find<DirectoryEditorController>();
 
-  const DirectoryEditorPage({Key? key}) : super(key: key);
+  const DirectoryEditorPage(this.parentUid,{Key? key}) : super(key: key);
+  final String parentUid;
 
   @override
   Widget build(BuildContext context) {
@@ -14,8 +15,8 @@ class DirectoryEditorPage extends StatelessWidget {
         actions: [
           FloatingActionButton(
             onPressed: dirController.back,
-            child: Icon(Icons.arrow_back),
             heroTag: null,
+            child: const Icon(Icons.arrow_back),
           )
         ],
       ),
@@ -33,9 +34,9 @@ class DirectoryEditorPage extends StatelessWidget {
             maxLines: 5,
           ),
           FloatingActionButton(
-            onPressed: dirController.save,
-            child: Icon(Icons.save),
+            onPressed: ()=>dirController.save(parentUid),
             heroTag: null,
+            child: const Icon(Icons.save),
           )
         ],
       ),

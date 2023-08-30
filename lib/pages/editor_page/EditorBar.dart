@@ -14,17 +14,19 @@ import '../../widgets/time_stamp_embed_widget.dart';
 
 class EditorBar extends StatelessWidget implements PreferredSize {
   EditorController get editorController => GetInstance().find<EditorController>();
-  NoteSelectPageController get noteSelectPageController => GetInstance().find<NoteSelectPageController>();
+  // NoteSelectPageController get noteSelectPageController => GetInstance().find<NoteSelectPageController>();
+  // DirSelectPageController get dirSelectPageController => GetInstance().find<DirSelectPageController>();
   const EditorBar({Key? key}) : super(key: key);
+
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
       elevation: 0,
       centerTitle: false,
-      title: Text(
-        noteSelectPageController.currentDir.value.title
-      ),
+      // title: Text(
+      //   dirSelectPageController.currentDir.value.title
+      // ),
       actions: [
         IconButton(
           onPressed: () => _insertTimeStamp(

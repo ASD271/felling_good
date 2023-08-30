@@ -1,7 +1,7 @@
 name: felling_good
-description: A new Flutter project.
+description: add continue button to read last opened note
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 1.0.1+1
+version: 1.0.3+1
 
 environment:
   sdk: '>=2.19.0 <3.0.0'
@@ -15,7 +15,6 @@ dependencies:
   hive: ^2.2.3
   drift: ^2.10.0
   sqlite3_flutter_libs: ^0.5.0
-  #sqlcipher_flutter_libs: ^0.5.1
   path: ^1.8.3
   cupertino_icons: ^1.0.4
   path_provider: ^2.0.9

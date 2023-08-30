@@ -22,7 +22,9 @@ class NoteSelectPageController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
+    await notebookController.noteBookCompleter.future;
     currentDir = await notebookController.loadDir('directory-root');
+    getPreference();
     uidsGetCurrentChildren();
     refreshChild();
     uidsSort();
@@ -31,6 +33,21 @@ class NoteSelectPageController extends GetxController {
 
   Compare<String>? sortRule;
 
+  void getPreference() {
+    PreferenceInfo preferenceInfo = notebookController.preferenceInfo;
+    sortRule = getRuleByString(preferenceInfo.sortRule);
+  }
+
+  Compare<String> getRuleByString(String ruleName) {
+    if (ruleName == 'default') {
+      return sortDefault;
+    } else if (ruleName == 'updateTime') {
+      return sortUpdateTime;
+    } else if (ruleName == 'createTime') {
+      return sortCreateTime;
+    }
+    throw 'rule name not exist';
+  }
 
   void uidsGetCurrentChildren() {
     uids.clear();
@@ -59,7 +76,7 @@ class NoteSelectPageController extends GetxController {
   RxInt itemNums = 0.obs;
   RxString title = ''.obs;
 
-  List<String> history = [];
+  List<String> dirHistory = [];
 
   void refreshChild() {
     if (currentDir.value.children != null) {
@@ -119,10 +136,19 @@ class NoteSelectPageController extends GetxController {
     return DateFormat('yyyy-MM-dd').format(d);
   }
 
-  void openNote(String uid) async {
+  void openNote(String uid, {String? parentDirUid}) async {
     Get.to(() => EditorPage(), arguments: [
-      {'parentDirUid': currentDir.value.uid, 'noteUid': uid}
+      {'parentDirUid': parentDirUid ?? currentDir.value.uid, 'noteUid': uid}
     ]);
+  }
+
+  void continueLastOpenedNote() {
+    PreferenceInfo preferenceInfo = notebookController.preferenceInfo;
+    if (preferenceInfo.lastOpenedNote.isNotEmpty) {
+      String noteUid = preferenceInfo.lastOpenedNote[0];
+      openNote(noteUid,
+          parentDirUid: notebookController.notebookItems[noteUid].value.parentUid);
+    }
   }
 
   String decodeNoteDesc(String jsonContent) {
@@ -145,34 +171,34 @@ class NoteSelectPageController extends GetxController {
 
   void openDirectory(String uid) async {
     assert(uid.startsWith('directory'), 'dir uid not right ${uid}');
-    history.add(currentDir.value.uid);
+    dirHistory.add(currentDir.value.uid);
     currentDir.value = (await notebookController.loadDir(uid)).value;
     print('${itemNums}   ${currentDir.value.children}');
     updateDirectory();
   }
 
   Future<bool> backDirectory() async {
-    if (history.isEmpty) {
-      print(history);
+    if (dirHistory.isEmpty) {
+      print(dirHistory);
       return false;
     }
-    String uid = history.removeLast();
+    String uid = dirHistory.removeLast();
     currentDir.value = (await notebookController.loadDir(uid)).value;
     updateDirectory();
     return true;
   }
 
-  Map<String,int> analyseDir(String uid) {
+  Map<String, int> analyseDir(String uid) {
     Directory dir = notebookController.notebookItems[uid].value;
     int numDir = 0,
         numNote = 0;
     dir.children?.forEach((String element) {
-      if (element.startsWith('directory')){
-      numDir++;
-      }
-      else if(element.startsWith('note')) {
+      if (element.startsWith('directory')) {
+        numDir++;
+      } else if (element.startsWith('note')) {
         numNote++;
-      }});
-    return {'dirNum':numDir,'noteNum':numNote};
+      }
+    });
+    return {'dirNum': numDir, 'noteNum': numNote};
   }
 }

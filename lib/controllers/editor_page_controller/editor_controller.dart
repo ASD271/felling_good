@@ -1,3 +1,4 @@
+import 'package:felling_good/utils/extension.dart';
 import 'package:get/get.dart';
 import 'package:note_database/note_database.dart';
 import 'package:flutter_quill/flutter_quill.dart';
@@ -16,6 +17,11 @@ enum _SelectionType {
   // line,
 }
 
+enum NoteStatus{
+  initial,
+  clean,
+  dirty
+}
 
 class EditorController extends GetxController {
   RxBool inited = false.obs;
@@ -30,22 +36,25 @@ class EditorController extends GetxController {
 
     super.onInit();
     Map<String, dynamic> args = Get.arguments[0];
+    parentDirUid=args['parentDirUid'];
     if (args.containsKey('noteUid')) {
       noteUid = args['noteUid'];
     } else {
-      Note tempNote=Note();
+      Note tempNote=Note(parentUid: args.getValue('parentUid',parentDirUid));
       noteUid = tempNote.uid;
       notebookController.refreshNote(tempNote);
     }
+
     await _loadFromRepository();
-    print('after load');
-    // editorActions = EditorActions(controller);
+    if(args.containsKey('note_offset')){
+      int noteOffset=args['note_offset'];
+      moveToPosition(noteOffset);
+    }
+    editorActions = EditorActions(controller);
     searchComponent=SearchComponent(controller);
     headerNavigationComponent=HeaderNavigationComponent(controller);
     headerNavigationComponent.updateHeader();
 
-    editorActions = EditorActions();
-    parentDirUid=args['parentDirUid'];
 
     _timer=Timer.periodic(Duration(seconds: 1), (timer){
       refreshNote();
@@ -70,52 +79,44 @@ class EditorController extends GetxController {
   late final EditorActions editorActions;
   late final SearchComponent searchComponent;
   late final HeaderNavigationComponent headerNavigationComponent;
-  int dirty=0; // 0 represent not used, 1 represent is not dirty, 2 represent is dirty now
-
+  NoteStatus noteStatus=NoteStatus.initial;
   Future<void> _loadFromRepository() async {
     final Document doc;
     if (note.jsonContent != '') {
-      print('load hive');
       final result = note.jsonContent;
       doc = Document.fromJson(jsonDecode(result));
     } else {
-      print('load empty');
       doc = Document()..insert(0, '');
     }
-    print('new');
     controller =
         QuillController(document: doc, selection: const TextSelection.collapsed(offset: 0));
-    print(doc.toDelta().toString());
-    print(doc.toPlainText());
     controller.document.changes.listen((DocChange event) {
-      if(dirty==0){
-        print('dir add note');
-        notebookController.dirAddChild(parentDirUid, note.uid);
-      }
-
+      checkNoteInitial();
       note.jsonContent=jsonEncode(controller.document.toDelta().toJson());
       print(controller.document.toDelta().toJson());
-      dirty=2;
+      noteStatus=NoteStatus.dirty;
     });
   }
 
   Future<void> refreshNote() async{
-    // print('running refresh...');
-    if(dirty==2){
-      dirty=1;
+    if(noteStatus==NoteStatus.dirty){
+      noteStatus=NoteStatus.clean;
       await notebookController.refreshNote(note);
       print('saved');
     }
   }
 
+  void checkNoteInitial(){
+    if(noteStatus==NoteStatus.initial){
+      notebookController.dirAddChild(parentDirUid, note.uid);
+      notebookController.refreshHistory(note.uid);
+    }
+  }
   void setTitle(String title){
     note.title=title;
-    if(dirty==0){
-      print('dir add note');
-      notebookController.dirAddChild(parentDirUid, note.uid);
-    }
+    checkNoteInitial();
     notebookController.refreshNote(note);
-    // dirty=2;
+    // noteStatus=2;
   }
 
   void titleSubmit(String title){
@@ -131,11 +132,10 @@ class EditorController extends GetxController {
         ChangeSource.LOCAL);
   }
 
-  void back(){
-    if(dirty==2)
+  void back() async{
+    if(noteStatus==2)
     {
-      refreshNote();
-      print('back refresh');
+      await refreshNote();
     }
     _timer.cancel();
     notebookController.noteSelectPageController.updateDirectory();
@@ -148,10 +148,9 @@ class EditorController extends GetxController {
 }
 
 class EditorActions {
-  // EditorActions(this.controller);
-  EditorActions();
+  EditorActions(this.controller);
 
-  // final QuillController controller;
+  final QuillController controller;
   Timer? _selectAllTimer;
   _SelectionType _selectionType = _SelectionType.none;
 
@@ -175,38 +174,38 @@ class EditorActions {
     //   return true;
     // }
 
-    // if (controller.selection.isCollapsed) {
-    //   _selectionType = _SelectionType.none;
-    // }
-    //
-    // if (_selectionType == _SelectionType.none) {
-    //   _selectionType = _SelectionType.word;
-    //   _startTripleClickTimer();
-    //   return false;
-    // }
-    //
-    // if (_selectionType == _SelectionType.word) {
-    //   final child = controller.document.queryChild(
-    //     controller.selection.baseOffset,
-    //   );
-    //   final offset = child.node?.documentOffset ?? 0;
-    //   final length = child.node?.length ?? 0;
-    //
-    //   final selection = TextSelection(
-    //     baseOffset: offset,
-    //     extentOffset: offset + length,
-    //   );
-    //
-    //   controller.updateSelection(selection, ChangeSource.REMOTE);
-    //
-    //   // _selectionType = _SelectionType.line;
-    //
-    //   _selectionType = _SelectionType.none;
-    //
-    //   _startTripleClickTimer();
-    //
-    //   return true;
-    // }
+    if (controller.selection.isCollapsed) {
+      _selectionType = _SelectionType.none;
+    }
+
+    if (_selectionType == _SelectionType.none) {
+      _selectionType = _SelectionType.word;
+      _startTripleClickTimer();
+      return false;
+    }
+
+    if (_selectionType == _SelectionType.word) {
+      final child = controller.document.queryChild(
+        controller.selection.baseOffset,
+      );
+      final offset = child.node?.documentOffset ?? 0;
+      final length = child.node?.length ?? 0;
+
+      final selection = TextSelection(
+        baseOffset: offset,
+        extentOffset: offset + length,
+      );
+
+      controller.updateSelection(selection, ChangeSource.REMOTE);
+
+      // _selectionType = _SelectionType.line;
+
+      _selectionType = _SelectionType.none;
+
+      _startTripleClickTimer();
+
+      return true;
+    }
 
     return false;
   }

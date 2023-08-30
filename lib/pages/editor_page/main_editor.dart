@@ -17,6 +17,8 @@ import '../../widgets/time_stamp_embed_widget.dart';
 
 import 'package:felling_good/controllers/utils/utils.dart';
 
+import 'hive_image.dart';
+
 class MainEditor extends StatelessWidget {
   EditorController get editorController => GetInstance().find<EditorController>();
   const MainEditor({Key? key}) : super(key: key);
@@ -129,6 +131,7 @@ class MainEditor extends StatelessWidget {
         // uncomment to provide a custom "pick from" dialog.
         // cameraPickSettingSelector: _selectCameraPickSetting,
       ),
+        // ..add((controller, toolbarIconSize, iconTheme, dialogTheme) => HiveImageButton()),
       showAlignmentButtons: true,
       afterButtonPressed: editorController.focusNode.requestFocus,
       locale: Get.locale,

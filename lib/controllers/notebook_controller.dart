@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:felling_good/utils/extension.dart';
 import 'package:get/get.dart';
 import 'package:note_database/note_database.dart';
 
@@ -10,29 +13,19 @@ class NotebookController extends GetxController {
   NoteSelectPageController get noteSelectPageController =>
       GetInstance().find<NoteSelectPageController>();
   Map<String, dynamic> notebookItems = {};
+  late PreferenceInfo preferenceInfo;
+  Completer<void> noteBookCompleter=Completer();
 
   // Map<String, NoteItem> items = {};
 
   @override
   void onInit() async {
     super.onInit();
+    preferenceInfo=await noteRepository.getPreferenceInfo();
+    await loadHistory();
+    noteBookCompleter.complete();
   }
 
-  // Future<NoteItem> loadItem(String uid) async {
-  //   NoteItem noteItem;
-  //   if (uid.startsWith('note')) {
-  //     var item = await noteRepository.getNote(uid);
-  //     noteItem = NoteItem(item.uid, title: item.title);
-  //   } else if (uid.startsWith('directory')) {
-  //     var item = await noteRepository.getDirectory(uid);
-  //     noteItem = NoteItem(item.uid, title: item.title);
-  //   } else {
-  //     throw 'not known prefix';
-  //   }
-  //
-  //   items[uid] = noteItem;
-  //   return noteItem;
-  // }
 
   void deleteNote(String uid){
     notebookItems.remove(uid);
@@ -45,10 +38,17 @@ class NotebookController extends GetxController {
   }
 
   Future<Rx<Note>> loadNote(String uid) async {
+    if(notebookItems.containsKey(uid)) return notebookItems[uid];
     var note = await noteRepository.getNote(uid);
     var rNote = note.obs;
     notebookItems[uid] = rNote;
     return notebookItems[uid];
+  }
+
+  Future<void> loadHistory() async{
+    for (var child in preferenceInfo.lastOpenedNote){
+      await loadNote(child);
+    }
   }
 
   Future<Rx<Directory>> loadDir(String uid, {bool recurse = true}) async {
@@ -95,21 +95,20 @@ class NotebookController extends GetxController {
     await noteRepository.saveDir(dir);
   }
 
+  Future<void> refreshHistory(String noteUid) async{
+    preferenceInfo.lastOpenedNote.addToFirst(noteUid);
+    if(preferenceInfo.lastOpenedNote.length>10){
+      preferenceInfo.lastOpenedNote.removeLast();
+    }
+    await noteRepository.savePreferenceInfo(preferenceInfo);
+  }
+
   Future<void> refreshNote(Note note) async {
     note.itemAttribute.modifyTime=DateTime.now().millisecondsSinceEpoch;
     if (notebookItems.containsKey(note.uid)) {
-      // Note x = note.copyWith();
-      // items[note.uid].value = x;
-      // print('${items[note.uid].value.title} and ${note.title}');
-      //
-      // print('save note but null.');
-      // note[note.uid] = NoteItem(note.uid,title: note.title);
-      // notebookItems[note.uid].value = note;
       notebookItems[note.uid].refresh();
-      print('contains    ${note.uid}');
     } else {
       notebookItems[note.uid] = note.obs;
-      print('not containds');
     }
     await noteRepository.saveNote(note);
   }

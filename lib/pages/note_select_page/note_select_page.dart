@@ -1,42 +1,35 @@
-import 'dart:convert';
-
-import 'package:felling_good/controllers/home_page_controller.dart';
 import 'package:felling_good/controllers/note_select/note_select_page_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:note_database/note_database.dart';
-import 'package:i18n_extension/i18n_widget.dart';
 import 'notebook_item.dart';
+import 'noteselect_bottom_bar.dart';
 
 class NoteSelectPage extends StatelessWidget {
-  NoteSelectPage({Key? key}) : super(key: key);
+  const NoteSelectPage({Key? key}) : super(key: key);
 
   NoteSelectPageController get noteSelectPageController =>
       GetInstance().find<NoteSelectPageController>();
 
   @override
   Widget build(BuildContext context) {
-    // String locale;
-    // locale = I18n.localeStr;
-    // print('now language is $locale');
     return Scaffold(
       appBar: AppBar(
         title: Obx(() => Text(noteSelectPageController.title.value)),
         actions: [
           FloatingActionButton(
-            onPressed: noteSelectPageController.addNote,
-            child: const Icon(Icons.add),
+            onPressed: noteSelectPageController.continueLastOpenedNote,
             heroTag: 'bt1',
+            child: const Icon(Icons.keyboard_arrow_right),
           ),
           FloatingActionButton(
             onPressed: noteSelectPageController.editDirectory,
-            child: const Icon(Icons.file_open),
             heroTag: 'bt2',
+            child: const Icon(Icons.file_open),
           ),
           FloatingActionButton(
             onPressed: noteSelectPageController.backDirectory,
-            child: const Icon(Icons.arrow_back),
             heroTag: 'bt3',
+            child: const Icon(Icons.arrow_back),
           ),
           FloatingActionButton(
             onPressed: () {
@@ -74,17 +67,17 @@ class NoteSelectPage extends StatelessWidget {
                     );
                   });
             },
-            child: const Icon(Icons.sort),
             heroTag: 'bt4',
+            child: const Icon(Icons.sort),
           )
         ],
       ),
       body: WillPopScope(
           onWillPop: () async {
-            bool res=await noteSelectPageController.backDirectory();
+            bool res = await noteSelectPageController.backDirectory();
             return !res;
           },
-          child: NoteFrame()),
+          child: const NoteFrame()),
     );
   }
 }
@@ -106,9 +99,11 @@ class NoteFrame extends StatelessWidget {
               itemCount: noteSelectPageController.itemNums.value,
               itemBuilder: (context, index) {
                 String uid = noteSelectPageController.uids[index];
-                if (uid.startsWith('note'))
+                if (uid.startsWith('note')) {
                   return NoteItem(uid);
-                else if (uid.startsWith('directory')) return DirectoryItem(uid);
+                } else if (uid.startsWith('directory')) {
+                  return DirectoryItem(uid);
+                }
                 return null;
               },
             ),
@@ -118,50 +113,11 @@ class NoteFrame extends StatelessWidget {
           height: 50,
           width: Get.width,
           child: Container(
-            child: NoteBottomBar(),
             color: themeData.cardColor,
+            child: NoteBottomBar(),
             // alignment: Alignment.center,
           ),
         ),
-      ],
-    );
-  }
-}
-
-class NoteBottomBar extends StatelessWidget {
-  NoteBottomBar();
-
-  NoteSelectPageController get noteSelectPageController =>
-      GetInstance().find<NoteSelectPageController>();
-
-  ElevatedButton _elevatedButton() {
-    return ElevatedButton(onPressed: () {}, child: Icon(Icons.abc));
-  }
-
-  final RxBool _dark = Get.isDarkMode.obs;
-
-  @override
-  Widget build(BuildContext context) {
-    print('first $_dark   ${Get.isDarkMode}  i ${1 + 5}');
-    final themeData = Theme.of(context);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        TextButton(
-            onPressed: noteSelectPageController.addNote,
-            child: Icon(Icons.add, color: Get.iconColor)),
-        TextButton(onPressed: () {}, child: Icon(Icons.circle)),
-        TextButton(onPressed: () {}, child: Icon(Icons.circle)),
-        TextButton(onPressed: () {}, child: Icon(Icons.circle)),
-        TextButton(
-            onPressed: () {
-              var t = themeData.copyWith(brightness: Brightness.light);
-              Get.changeThemeMode(Get.isDarkMode ? ThemeMode.light : ThemeMode.dark);
-              _dark.value = !_dark.value;
-              print(_dark);
-            },
-            child: Obx(() => _dark.value ? Icon(Icons.sunny) : Icon(Icons.dark_mode))),
-        // Container(color: Colors.red,width: 100, height: 30,),
       ],
     );
   }

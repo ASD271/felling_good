@@ -22,9 +22,12 @@ class NoteBottomBar extends StatelessWidget {
           onPressed: dirSelectPageController.editDirectory,
           child: Icon(Icons.file_open,color: Get.iconColor),
         ),
-        TextButton(onPressed: () {
+        TextButton(onPressed: ()async {
           print(noteSelectPageController.notebookController.preferenceInfo.lastOpenedNote);
-        }, child: const Icon(Icons.history)),
+          await noteSelectPageController.openHistoryPage();
+          dirSelectPageController.updateDirectory();
+
+        }, child: Icon(Icons.history,color: Get.iconColor)),
 
         TextButton(onPressed: () {}, child: const Icon(Icons.circle)),
         TextButton(

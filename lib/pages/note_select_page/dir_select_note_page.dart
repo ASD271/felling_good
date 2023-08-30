@@ -75,50 +75,7 @@ class NoteSelectPage extends StatelessWidget {
             bool res = await dirSelectPageController.backDirectory();
             return !res;
           },
-          child: const NoteFrame()),
+          child: const NoteFrame<DirSelectPageController>()),
     );
   }
 }
-
-class NoteFrame extends StatelessWidget {
-  const NoteFrame({Key? key}) : super(key: key);
-
-  // NoteSelectPageController get noteSelectPageController =>
-  //     GetInstance().find<NoteSelectPageController>();
-  DirSelectPageController get dirSelectPageController => GetInstance().find<DirSelectPageController>();
-
-  @override
-  Widget build(BuildContext context) {
-    final themeData = Theme.of(context);
-    return Column(
-      children: [
-        Expanded(
-          child: GetBuilder<DirSelectPageController>(
-            builder: (controller) => ListView.builder(
-              itemCount: dirSelectPageController.itemNums.value,
-              itemBuilder: (context, index) {
-                String uid = dirSelectPageController.uids[index];
-                if (uid.startsWith('note')) {
-                  return NoteItem<DirSelectPageController>(uid);
-                } else if (uid.startsWith('directory')) {
-                  return DirectoryItem<DirSelectPageController>(uid);
-                }
-                return null;
-              },
-            ),
-          ),
-        ),
-        SizedBox(
-          height: 50,
-          width: Get.width,
-          child: Container(
-            color: themeData.cardColor,
-            child: NoteBottomBar(),
-            // alignment: Alignment.center,
-          ),
-        ),
-      ],
-    );
-  }
-}
-

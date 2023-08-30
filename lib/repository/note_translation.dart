@@ -16,6 +16,7 @@ class NoteTranslation extends Translations{
           '你确定删除该文件夹吗，文件夹下有@dirNum个文件，以及@noteNum个笔记',
       'cancel':'取消',
       'confirm':'确认',
+      'history record':'历史记录',
     }
   };
 

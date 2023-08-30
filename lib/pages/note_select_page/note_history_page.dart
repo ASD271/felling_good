@@ -1,3 +1,4 @@
+import 'package:felling_good/pages/note_select_page/notebook_item.dart';
 import 'package:flutter/material.dart';
 import 'package:felling_good/controllers/controllers.dart';
 class NoteHistoryPage extends StatelessWidget {
@@ -6,6 +7,15 @@ class NoteHistoryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return  Scaffold(
+      appBar: AppBar(title: Text('history record'.tr),actions: [
+        FloatingActionButton(
+          onPressed: noteHistoryController.back,
+          heroTag: 'bt3',
+          child: const Icon(Icons.arrow_back),
+        ),
+      ],),
+      body: const NoteFrame<NoteHistoryController>(),
+    );
   }
 }

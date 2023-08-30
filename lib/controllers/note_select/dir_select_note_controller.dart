@@ -16,13 +16,15 @@ import 'note_select_page_controller.dart';
 
 typedef Compare<E> = int Function(E a, E b);
 
-class DirSelectPageController extends GetxController implements NoteOperation {
+class DirSelectPageController extends NoteSelectController  {
   // NoteRepository noteRepository = NoteRepository();
   NotebookController get notebookController => GetInstance().find<NotebookController>();
 
   NoteSelectPageController get noteSelectPageController =>
       GetInstance().find<NoteSelectPageController>();
-  RxList<String> uids = ([].cast<String>()).obs;
+  // RxList<String> uids = ([].cast<String>()).obs;
+  // RxInt itemNums = 0.obs;
+  RxString title = ''.obs;
   bool reversed = false;
 
   @override
@@ -62,8 +64,7 @@ class DirSelectPageController extends GetxController implements NoteOperation {
   }
 
   late Rx<Directory> currentDir;
-  RxInt itemNums = 0.obs;
-  RxString title = ''.obs;
+
 
   List<String> dirHistory = [];
 

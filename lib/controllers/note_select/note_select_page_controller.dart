@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:note_database/note_database.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import '../../pages/editor_page/editor_page.dart';
+import 'package:felling_good/pages/note_select_page/note_history_page.dart';
 import 'package:intl/intl.dart';
 
 part 'sort_rules.dart';
@@ -137,6 +138,11 @@ class NoteSelectPageController extends GetxController {
       String noteUid = preferenceInfo.lastOpenedNote[0];
       openNote(noteUid);
     }
+  }
+
+  Future<void> openHistoryPage() async{
+    await Get.to(()=>const NoteHistoryPage());
+
   }
 
   String decodeNoteDesc(String jsonContent) {

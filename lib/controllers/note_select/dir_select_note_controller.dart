@@ -1,29 +1,16 @@
-import 'dart:convert';
-
 import 'package:felling_good/controllers/controllers.dart';
-import 'package:felling_good/controllers/notebook_controller.dart';
 import 'package:felling_good/pages/directory_editor_page.dart';
-import 'package:felling_good/repository/note_repository.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:get/get.dart';
 import 'package:note_database/note_database.dart';
-import 'package:flutter_quill/flutter_quill.dart';
-import 'package:path/path.dart';
 import '../../pages/editor_page/editor_page.dart';
-import 'package:intl/intl.dart';
 
 import 'note_select_page_controller.dart';
 
-typedef Compare<E> = int Function(E a, E b);
-
-class DirSelectPageController extends NoteSelectController  {
-  // NoteRepository noteRepository = NoteRepository();
+class DirSelectPageController extends NoteSelectController {
   NotebookController get notebookController => GetInstance().find<NotebookController>();
 
   NoteSelectPageController get noteSelectPageController =>
       GetInstance().find<NoteSelectPageController>();
-  // RxList<String> uids = ([].cast<String>()).obs;
-  // RxInt itemNums = 0.obs;
   RxString title = ''.obs;
   bool reversed = false;
 
@@ -34,7 +21,7 @@ class DirSelectPageController extends NoteSelectController  {
     currentDir = await notebookController.loadDir('directory-root');
     getCurrentChildren();
     refreshCurrentChild();
-    noteSelectPageController.uidsSort(uids);
+    uidsSort();
     update();
   }
 
@@ -65,7 +52,6 @@ class DirSelectPageController extends NoteSelectController  {
 
   late Rx<Directory> currentDir;
 
-
   List<String> dirHistory = [];
 
   void refreshCurrentChild() {
@@ -83,7 +69,6 @@ class DirSelectPageController extends NoteSelectController  {
     await Get.to(() => EditorPage(), arguments: [
       {'parentDirUid': currentDir.value.uid}
     ]);
-    print('add note back');
     updateDirectory();
   }
 
@@ -94,7 +79,7 @@ class DirSelectPageController extends NoteSelectController  {
   }
 
   @override
-  void deleteNote(String uid) async{
+  void deleteNote(String uid) async {
     assert(uid.startsWith('note'), 'uid not started with note when remove note');
     await notebookController.deleteNote(uid);
     updateDirectory();
@@ -103,8 +88,16 @@ class DirSelectPageController extends NoteSelectController  {
   void updateDirectory() {
     getCurrentChildren();
     refreshCurrentChild();
-    noteSelectPageController.uidsSort(uids);
+    uidsSort();
     update();
+  }
+
+  void uidsSort() {
+    if (uids.isEmpty) return;
+    uids.sort(sortRule);
+    if (reversed) {
+      uids.value = uids.reversed.toList();
+    }
   }
 
   @override
@@ -116,36 +109,44 @@ class DirSelectPageController extends NoteSelectController  {
     updateDirectory();
   }
 
-  void editDirectory() async {
-    final String uid=currentDir.value.uid;
-    await Get.to(() => DirectoryEditorPage(uid));
+  void editDirectory([String? uid]) async {
+    final String parentUid = currentDir.value.uid;
+    debugPrint(uid);
+    await Get.to(() => const DirectoryEditorPage(),
+        arguments: {'parentUid': parentUid, 'uid': uid});
     debugPrint('after edit');
     updateDirectory();
   }
 
-
   @override
-  void deleteDir(String uid, {bool outter=true,String? parentUid}) {
+  void deleteDir(String uid, {bool outter = true, String? parentUid}) {
     assert(uid.startsWith('directory'), 'uid not started with directory when remove directory');
     Directory dir = notebookController.notebookItems[uid].value;
     if (dir.children != null) {
       for (String child in dir.children!) {
         if (child.startsWith('directory')) {
-          deleteDir(child, outter: false,parentUid: uid);
+          if(!notebookController.notebookItems.containsKey(child)){
+            notebookController.loadDir(child);
+          }
+          deleteDir(child, outter: false, parentUid: uid);
         } else if (child.startsWith('note')) {
           deleteNote(child);
         }
       }
     }
 
-    notebookController.dirRemoveChild(parentUid??currentDir.value.uid, uid);
+
     notebookController.deleteDir(uid);
-    if (outter) updateDirectory();  //update view when after delete dir
+    debugPrint('$uid has been deleted');
+    if (outter) {
+      notebookController.dirRemoveChild(parentUid ?? currentDir.value.uid, uid);
+      updateDirectory(); //update view when after delete dir
+    }
+
   }
 
   Future<bool> backDirectory() async {
     if (dirHistory.isEmpty) {
-      print(dirHistory);
       return false;
     }
     String uid = dirHistory.removeLast();

@@ -1,7 +1,7 @@
 name: felling_good
-description: add continue button to read last opened note
+description: add history page
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 1.0.3+1
+version: 1.0.4+1
 
 environment:
   sdk: '>=2.19.0 <3.0.0'

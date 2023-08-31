@@ -17,6 +17,7 @@ class NoteTranslation extends Translations{
       'cancel':'取消',
       'confirm':'确认',
       'history record':'历史记录',
+      'change':'修改',
     }
   };
 

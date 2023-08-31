@@ -85,8 +85,8 @@ class NotebookController extends GetxController {
   }
 
   Future<void> refreshDir(Directory dir) async {
-    if (notebookItems.containsKey(dir)) {
-      notebookItems[dir].refresh();
+    if (notebookItems.containsKey(dir.uid)) {
+      notebookItems[dir.uid].refresh();
       debugPrint('refresh.... ${dir.children}');
     } else {
       notebookItems[dir.uid] = dir.obs;

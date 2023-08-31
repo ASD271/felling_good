@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:note_database/note_database.dart';
 
 import 'noteselect_bottom_bar.dart';
+
 class NoteFrame<T extends NoteSelectController> extends StatelessWidget {
   const NoteFrame({Key? key}) : super(key: key);
 
@@ -25,7 +26,7 @@ class NoteFrame<T extends NoteSelectController> extends StatelessWidget {
                 if (uid.startsWith('note')) {
                   return NoteItem<T>(uid);
                 } else if (uid.startsWith('directory')) {
-                  return DirectoryItem<T>(uid);
+                  return DirectoryItem(uid);
                 }
                 return null;
               },
@@ -46,7 +47,6 @@ class NoteFrame<T extends NoteSelectController> extends StatelessWidget {
   }
 }
 
-
 class NoteItem<T extends NoteSelectController> extends StatelessWidget {
   const NoteItem(this.uid, {super.key});
 
@@ -54,8 +54,8 @@ class NoteItem<T extends NoteSelectController> extends StatelessWidget {
 
   NoteSelectPageController get noteSelectPageController =>
       GetInstance().find<NoteSelectPageController>();
-  T get noteController=>GetInstance().find<T>();
 
+  T get noteController => GetInstance().find<T>();
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +104,7 @@ class NoteItem<T extends NoteSelectController> extends StatelessWidget {
   }
 }
 
-class DirectoryItem<T extends NoteSelectController> extends StatelessWidget {
+class DirectoryItem extends StatelessWidget {
   const DirectoryItem(this.uid, {super.key});
 
   final String uid;
@@ -112,7 +112,7 @@ class DirectoryItem<T extends NoteSelectController> extends StatelessWidget {
   NoteSelectPageController get noteSelectPageController =>
       GetInstance().find<NoteSelectPageController>();
 
-  T get dirController=>GetInstance().find<T>();
+  DirSelectPageController get dirController => GetInstance().find<DirSelectPageController>();
 
   @override
   Widget build(BuildContext context) {
@@ -141,14 +141,16 @@ class DirectoryItem<T extends NoteSelectController> extends StatelessWidget {
                     () => showDialog(
                         context: context,
                         builder: (BuildContext context) {
-                          var dirInfo=noteSelectPageController.analyseDir(uid);
+                          var dirInfo = noteSelectPageController.analyseDir(uid);
 
                           return AlertDialog(
                             title: Text('alert'.tr),
                             content: Text(
                                 "Are you sure to delete this directory?,here are @dirNum directories and @noteNum notes"
-                                    .trParams({'dirNum':'${dirInfo['dirNum']}',
-                                  'noteNum':'${dirInfo['noteNum']}'})),
+                                    .trParams({
+                              'dirNum': '${dirInfo['dirNum']}',
+                              'noteNum': '${dirInfo['noteNum']}'
+                            })),
                             actions: [
                               TextButton(
                                   onPressed: () => Navigator.pop(context),
@@ -165,7 +167,12 @@ class DirectoryItem<T extends NoteSelectController> extends StatelessWidget {
                         }));
               },
             ), // Menu Item
-            // PopupMenuItem(child: Text("复制")), // Menu Item
+            PopupMenuItem(
+                child: Text("change".tr),
+                onTap: () {
+                  Future.delayed(
+                      const Duration(seconds: 0), () => dirController.editDirectory(uid));
+                }), // Menu Item
           ],
         );
       },
@@ -173,7 +180,6 @@ class DirectoryItem<T extends NoteSelectController> extends StatelessWidget {
         leading: Icon(
           Icons.folder,
           color: themeData.cardColor,
-
         ),
         title: Obx(() => Text(n.value.title)),
         // titleAlignment: ListTileTitleAlignment.threeLine,

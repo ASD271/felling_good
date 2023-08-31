@@ -116,7 +116,6 @@ class EditorController extends GetxController {
     note.title = title;
     checkNoteInitial();
     notebookController.refreshNote(note);
-    // noteStatus=2;
   }
 
   void titleSubmit(String title) {
@@ -135,7 +134,6 @@ class EditorController extends GetxController {
       await refreshNote();
     }
     _timer.cancel();
-    // notebookController.noteSelectPageController.updateDirectory();
     Get.back();
   }
 

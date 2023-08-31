@@ -6,29 +6,40 @@ import '../repository/note_repository.dart';
 import 'notebook_controller.dart';
 
 class DirectoryEditorController extends GetxController {
-  String title = '', description = '';
   NotebookController get notebookController => GetInstance().find<NotebookController>();
+  TextEditingController titleCtr = TextEditingController(), descCtr = TextEditingController();
+  late String parentUid;
+  String? uid;
 
   @override
   void onInit() async {
     super.onInit();
+    parentUid = Get.arguments['parentUid'];
+    debugPrint(parentUid);
+    uid = Get.arguments['uid'];
+    debugPrint(uid);
+    if (uid != null) {
+      titleCtr.text = notebookController.notebookItems[uid].value.title;
+      descCtr.text = notebookController.notebookItems[uid].value.description;
+    }
   }
 
   void back() {
     Get.back();
   }
 
-  void setTitle(String title) {
-    this.title = title;
-  }
+  void save() {
+    if(uid==null){
+      notebookController.addDir(
+          parentUid, Directory(title: titleCtr.text, description: descCtr.text));
+    }
+    else{
+      Directory dir=notebookController.notebookItems[uid].value;
+      dir..title=titleCtr.text..description=descCtr.text;
+      notebookController.refreshDir(dir);
+    }
 
-  void setDescription(String desc) {
-    this.description = desc;
-  }
-
-  void save(String parentUid) {
-    notebookController.addDir(parentUid,Directory(title: title,description:description));
-    print('$title,$description');
+    // print('$title,$description');
     // Get.dialog(AlertDialog(
     //   title: Text('hello'),
     //   content: const Text('data'),

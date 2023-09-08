@@ -11,6 +11,7 @@ class NoteFrame<T extends NoteSelectController> extends StatelessWidget {
   //     GetInstance().find<NoteSelectPageController>();
   // DirSelectPageController get dirSelectPageController => GetInstance().find<DirSelectPageController>();
   T get frameController => GetInstance().find<T>();
+  NotebookController get notebookController  =>GetInstance().find<NotebookController>();
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +34,7 @@ class NoteFrame<T extends NoteSelectController> extends StatelessWidget {
             ),
           ),
         ),
+        Obx(()=> Text('${notebookController.showedOpinion.value.content}',style: const TextStyle(fontSize: 18),)),
         SizedBox(
           height: 50,
           width: Get.width,

@@ -29,7 +29,10 @@ class NoteBottomBar extends StatelessWidget {
 
         }, child: Icon(Icons.history,color: Get.iconColor)),
 
-        TextButton(onPressed: () {}, child: const Icon(Icons.circle)),
+        TextButton(onPressed: () async {
+            var keys=await noteSelectPageController.notebookController.noteRepository.getOpinionKeys();
+            print(keys);
+        }, child: const Icon(Icons.circle)),
         TextButton(
             onPressed: () {
               Get.changeThemeMode(Get.isDarkMode ? ThemeMode.light : ThemeMode.dark);

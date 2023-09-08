@@ -1,4 +1,7 @@
+import 'package:felling_good/controllers/editor_page_controller/get_text.dart';
 import 'package:felling_good/utils/extension.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 import 'package:get/get.dart';
 import 'package:note_database/note_database.dart';
 import 'package:flutter_quill/flutter_quill.dart';
@@ -7,8 +10,13 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' hide Text;
 
+import '../../universal_ui/universal_ui.dart';
+import '../../widgets/opinion_embed_widget.dart';
+import '../../widgets/time_stamp_embed_widget.dart';
 import '../notebook_controller.dart';
+import '../quill_get_controller.dart';
 import 'header.dart';
+import 'package:uuid/uuid.dart';
 
 enum _SelectionType {
   none,
@@ -27,9 +35,21 @@ class EditorController extends GetxController {
   Note get note => notebookController.notebookItems[noteUid].value;
   RxBool showBottomBar = false.obs;
 
+  QuillGetController get quillGetController => GetInstance().find<QuillGetController>();
+
+
   @override
   void onInit() async {
     super.onInit();
+    // if(kIsWeb){
+    //   for (var element in defaultEmbedBuildersWeb) {
+    //     embedBuilders.add(element);
+    //   }
+    // }else{
+    //   FlutterQuillEmbeds.builders().forEach((element) {
+    //     embedBuilders.add(element);
+    //   });
+    // }
     Map<String, dynamic> args = Get.arguments[0];
     if (!args.containsKey('parentDirUid')) {
       throw 'parentDirUid not exists';
@@ -41,7 +61,7 @@ class EditorController extends GetxController {
       parentDirUid = args['parentDirUid'];
       Note tempNote = Note(parentUid: args.getValue('parentUid', parentDirUid));
       noteUid = tempNote.uid;
-      notebookController.refreshNote(tempNote);
+      notebookController.refreshNote(tempNote,save:false);
     }
 
     await _loadFromRepository();
@@ -89,13 +109,65 @@ class EditorController extends GetxController {
     }
     controller =
         QuillController(document: doc, selection: const TextSelection.collapsed(offset: 0));
-    controller.document.changes.listen((DocChange event) {
-      checkNoteInitial();
-      note.jsonContent = jsonEncode(controller.document.toDelta().toJson());
-      print(controller.document.toDelta().toJson());
-      noteStatus = NoteStatus.dirty;
-    });
+    controller.document.changes.listen(_listen);
   }
+
+  void _listen(DocChange event){
+      checkNoteInitial();
+      noteStatus = NoteStatus.dirty;
+      note.jsonContent = jsonEncode(controller.document.toDelta().toJson());
+      Document before=Document.fromDelta(event.before);
+      int base=0;// be sure that insert will not together with delete at one time
+      print('change ${event.change.toList()}');
+      // event.change.insert('\n');
+      // event.change.push('\n');
+      // var delta=Delta()..insert('\n');
+      // delta=event.change.compose(delta);
+      // delta=delta.compose(event.change);
+      // print(delta.toList());
+      // var doc=Document.fromDelta(delta);
+      // var embeds=controller.document.getEmbedType(base, doc.length);
+      // print(embeds);
+      try{
+        for( var e in event.change.toList()){
+          if(e.isInsert){
+            int len=e.length!;
+            print(e.data);
+            try{
+              if(e.data is Map){
+                var map=e.data as Map<String,dynamic>;
+                print('map $map');
+                quillGetController.insertEmbedFromJson(map);
+              }
+
+            }
+            catch(e){
+              print(e);
+            }
+            // print('base:$base len:$len');
+            // var embeds=controller.document.getEmbedType(base, len);
+            // // print('insert embeds $embeds');
+            // quillGetController.embedInsertCallback(embeds);
+            // base+=len;
+          }
+          else {
+            int len=e.length!;
+            if(e.isDelete){
+              var embeds=before.getEmbedType(base,len);
+              // print('delete embeds $embeds');
+              quillGetController.embedDeleteCallback(embeds);
+            }
+            base+=len;
+          }
+        }
+      }//todo same like there is a bug when transfer pinying to chinese
+      catch(e){
+        print(e);
+      }
+
+  }
+
+
 
   Future<void> refreshNote() async {
     if (noteStatus == NoteStatus.dirty) {
@@ -120,7 +192,8 @@ class EditorController extends GetxController {
 
   void titleSubmit(String title) {
     focusNode.requestFocus();
-    moveToPosition(0);
+    // moveToPosition(0);
+    controller.moveCursorToStart();
   }
 
   void moveToPosition(int offset, {int? extentOffset}) {
@@ -134,12 +207,21 @@ class EditorController extends GetxController {
       await refreshNote();
     }
     _timer.cancel();
+    notebookController.backCallback();
     Get.back();
   }
 
   void changeMenu() {
     showBottomBar.value = !showBottomBar.value;
   }
+
+  void addOpinion(Opinion opinion){
+    notebookController.addOpinion(opinion);
+  }
+  void deleteOpinion(Opinion opinion){
+    notebookController.deleteOpinion(opinion);
+  }
+
 }
 
 class EditorActions {

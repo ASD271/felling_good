@@ -2,6 +2,7 @@ import 'package:felling_good/controllers/controllers.dart';
 import 'package:felling_good/pages/directory_editor_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:note_database/note_database.dart';
+import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 import '../../pages/editor_page/editor_page.dart';
 
 import 'note_select_page_controller.dart';
@@ -166,5 +167,10 @@ class DirSelectPageController extends NoteSelectController {
       }
     });
     return {'dirNum': numDir, 'noteNum': numNote};
+  }
+
+  @override
+  String getTip() {
+    return notebookController.getRandomOpinion().content;
   }
 }

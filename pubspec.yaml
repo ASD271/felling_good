@@ -1,7 +1,7 @@
 name: felling_good
-description: add history page
+description: add opinion at bottom
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 1.0.4+1
+version: 1.0.5+1
 
 environment:
   sdk: '>=2.19.0 <3.0.0'
@@ -23,6 +23,7 @@ dependencies:
   flutter_quill_extensions: ^0.4.0
   permission_handler: ^10.4.3
   mutex: ^3.0.1
+  rating_dialog: ^2.0.4
 
   note_database:
     path: ./packages/note_database

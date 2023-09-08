@@ -17,5 +17,8 @@ abstract class NoteDatabase {
 
   Future<void> deleteDynamic(String uid);
 
+  /// get all keys which starts with prefix
+  Future<List<String>> keysStartsWith(String prefix);
+
 
 }

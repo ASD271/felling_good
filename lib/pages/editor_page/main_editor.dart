@@ -1,29 +1,26 @@
+import 'package:felling_good/pages/editor_page/hightlight_button.dart';
+import 'package:felling_good/widgets/opinion_embed_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:felling_good/controllers/controllers.dart';
 import 'package:flutter_quill/flutter_quill.dart';
-import 'package:get/get.dart';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_quill/extensions.dart';
 import 'package:flutter_quill/flutter_quill.dart' hide Text;
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 
 
-import '../../controllers/editor_page_controller/editor_controller.dart';
-import '../../universal_ui/universal_ui.dart';
-import '../../widgets/time_stamp_embed_widget.dart';
-
 import 'package:felling_good/controllers/utils/utils.dart';
 
-import 'hive_image.dart';
 
 class MainEditor extends StatelessWidget {
   EditorController get editorController => GetInstance().find<EditorController>();
+  QuillGetController get quillGetController => GetInstance().find<QuillGetController>();
+
   const MainEditor({Key? key}) : super(key: key);
 
-  QuillEditor getQuillEditor(){
+  QuillEditor getQuillEditor() {
     if (kIsWeb) {
       return QuillEditor(
           controller: editorController.controller,
@@ -51,7 +48,10 @@ class MainEditor extends StatelessWidget {
                 null),
             sizeSmall: const TextStyle(fontSize: 9),
           ),
-          embedBuilders: [...defaultEmbedBuildersWeb, TimeStampEmbedBuilderWidget()]);
+          embedBuilders: [
+            // ...defaultEmbedBuildersWeb,
+            ...quillGetController.embedBuilders,
+          ]);
     }
     return QuillEditor(
       controller: editorController.controller,
@@ -89,49 +89,57 @@ class MainEditor extends StatelessWidget {
           fontFeatures: [FontFeature.superscripts()],
         ),
       ),
-      embedBuilders: [...FlutterQuillEmbeds.builders(), TimeStampEmbedBuilderWidget()],
+      embedBuilders: [
+        // ...FlutterQuillEmbeds.builders(),
+        ...quillGetController.embedBuilders,
+      ],
     );
   }
 
-  QuillToolbar getQuillToolBar(){
+  QuillToolbar getQuillToolBar() {
+    List<EmbedButtonBuilder>? embedButtons;
     if (kIsWeb) {
+      embedButtons = FlutterQuillEmbeds.buttons(
+        onImagePickCallback: onImagePickCallback,
+        webImagePickImpl: webImagePickImpl,
+      );
       return QuillToolbar.basic(
         controller: editorController.controller,
-        embedButtons: FlutterQuillEmbeds.buttons(
-          onImagePickCallback: onImagePickCallback,
-          webImagePickImpl: webImagePickImpl,
-        ),
+        embedButtons: embedButtons,
         showAlignmentButtons: true,
         afterButtonPressed: editorController.focusNode.requestFocus,
         locale: Get.locale,
       );
     }
     if (isDesktop()) {
+      embedButtons = FlutterQuillEmbeds.buttons(
+        onImagePickCallback: onImagePickCallback,
+        filePickImpl: openFileSystemPickerForDesktop,
+      )..add((controller, toolbarIconSize, iconTheme, dialogTheme) =>
+          HighlightButton(controller, afterButtonPressed: editorController.focusNode.requestFocus));
       return QuillToolbar.basic(
         controller: editorController.controller,
-        embedButtons: FlutterQuillEmbeds.buttons(
-          onImagePickCallback: onImagePickCallback,
-          filePickImpl: openFileSystemPickerForDesktop,
-        ),
+        embedButtons: embedButtons,
         showAlignmentButtons: true,
         afterButtonPressed: editorController.focusNode.requestFocus,
         locale: Get.locale,
       );
     }
+    embedButtons = FlutterQuillEmbeds.buttons(
+      // provide a callback to enable picking images from device.
+      // if omit, "image" button only allows adding images from url.
+      // same goes for videos.
+      onVideoPickCallback: onVideoPickCallback,
+      onImagePickCallback: onImagePickCallback,
+      // uncomment to provide a custom "pick from" dialog.
+      // mediaPickSettingSelector: _selectMediaPickSetting,
+      // uncomment to provide a custom "pick from" dialog.
+      // cameraPickSettingSelector: _selectCameraPickSetting,
+    )..add((controller, toolbarIconSize, iconTheme, dialogTheme) =>
+        HighlightButton(controller, afterButtonPressed: editorController.focusNode.requestFocus));
     return QuillToolbar.basic(
       controller: editorController.controller,
-      embedButtons: FlutterQuillEmbeds.buttons(
-        // provide a callback to enable picking images from device.
-        // if omit, "image" button only allows adding images from url.
-        // same goes for videos.
-        onVideoPickCallback: onVideoPickCallback,
-        onImagePickCallback: onImagePickCallback,
-        // uncomment to provide a custom "pick from" dialog.
-        // mediaPickSettingSelector: _selectMediaPickSetting,
-        // uncomment to provide a custom "pick from" dialog.
-        // cameraPickSettingSelector: _selectCameraPickSetting,
-      ),
-        // ..add((controller, toolbarIconSize, iconTheme, dialogTheme) => HiveImageButton()),
+      embedButtons: embedButtons,
       showAlignmentButtons: true,
       afterButtonPressed: editorController.focusNode.requestFocus,
       locale: Get.locale,
@@ -140,7 +148,7 @@ class MainEditor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var quillEditor=getQuillEditor();
+    var quillEditor = getQuillEditor();
     var toolbar = getQuillToolBar();
 
     return SafeArea(
@@ -159,19 +167,18 @@ class MainEditor extends StatelessWidget {
               child: quillEditor,
             ),
           ),
-          Obx((){
-            if(editorController.showBottomBar.value) {
+          Obx(() {
+            if (editorController.showBottomBar.value) {
               return kIsWeb
                   ? Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-                    child: toolbar,
-                  ))
+                      child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                      child: toolbar,
+                    ))
                   : Container(child: toolbar);
             }
             return Container();
           })
-
         ],
       ),
     );

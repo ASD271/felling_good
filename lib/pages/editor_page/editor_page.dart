@@ -21,6 +21,8 @@ import 'package:path_provider/path_provider.dart';
 import '../../controllers/editor_page_controller/editor_controller.dart';
 
 class EditorPage extends StatelessWidget {
+  const EditorPage({super.key});
+
   EditorController get editorController => GetInstance().find<EditorController>();
 
   @override

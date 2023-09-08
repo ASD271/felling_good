@@ -10,8 +10,5 @@ abstract class NoteSelectController extends GetxController{
   void deleteNote(String uid);
   void openDir(String uid);
   void deleteDir(String uid);
-}
-
-abstract class NoteFrameData{
-
+  String getTip();
 }

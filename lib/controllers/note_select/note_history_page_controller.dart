@@ -36,6 +36,7 @@ class NoteHistoryController extends NoteSelectController {
   }
 
   void back() async{
+    notebookController.backCallback();
     Get.back();
   }
 
@@ -47,5 +48,10 @@ class NoteHistoryController extends NoteSelectController {
   @override
   void openDir(String uid) {
     // TODO: implement openDir
+  }
+
+  @override
+  String getTip() {
+    return notebookController.getRandomOpinion().content;
   }
 }

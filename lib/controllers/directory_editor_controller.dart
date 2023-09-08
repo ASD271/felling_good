@@ -25,6 +25,7 @@ class DirectoryEditorController extends GetxController {
   }
 
   void back() {
+    notebookController.backCallback();
     Get.back();
   }
 
@@ -44,6 +45,7 @@ class DirectoryEditorController extends GetxController {
     //   title: Text('hello'),
     //   content: const Text('data'),
     // ));
+    notebookController.backCallback();
     Get.back();
   }
 }

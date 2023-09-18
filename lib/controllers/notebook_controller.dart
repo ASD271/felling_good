@@ -40,7 +40,7 @@ class NotebookController extends GetxController {
     opinions.clear();
     var opinionKeys=await noteRepository.getOpinionKeys();
     for(var key in opinionKeys){
-      loadOpinion(key);
+      await loadOpinion(key);
     }
   }
   Future<Opinion> loadOpinion(String uid) async{
@@ -257,8 +257,11 @@ class NotebookController extends GetxController {
     return opinions[i - 1]; //这里几乎不可能运行到，除非你的权重有负数
   }
 
-  void backCallback(){
+  void refreshOpinion(){
     showedOpinion.value=getRandomOpinion();
     showedOpinion.refresh();
+  }
+  void backCallback(){
+    refreshOpinion();
   }
 }

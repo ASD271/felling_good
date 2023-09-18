@@ -107,6 +107,7 @@ class DirSelectPageController extends NoteSelectController {
     dirHistory.add(currentDir.value.uid);
     currentDir.value = (await notebookController.loadDir(uid)).value;
     debugPrint('$itemNums   ${currentDir.value.children}');
+    notebookController.refreshOpinion();
     updateDirectory();
   }
 
@@ -150,6 +151,7 @@ class DirSelectPageController extends NoteSelectController {
     if (dirHistory.isEmpty) {
       return false;
     }
+    notebookController.refreshOpinion();
     String uid = dirHistory.removeLast();
     currentDir.value = (await notebookController.loadDir(uid)).value;
     updateDirectory();

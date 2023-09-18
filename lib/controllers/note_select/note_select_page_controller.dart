@@ -76,6 +76,7 @@ class NoteSelectPageController extends GetxController {
   }
 
   Future<void> openHistoryPage() async{
+    notebookController.refreshOpinion();
     await Get.to(()=>const NoteHistoryPage());
 
   }

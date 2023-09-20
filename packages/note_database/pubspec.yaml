@@ -1,0 +1,24 @@
+name: note_database
+description: A Very Good Project created by Very Good CLI.
+version: 0.1.0+1
+publish_to: none
+
+environment:
+  sdk: ">=2.19.0 <3.0.0"
+  flutter: 3.7.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  hive: ^2.2.3
+  uuid: ^3.0.7
+  shared_preferences: ^2.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  mocktail: ^0.3.0
+  very_good_analysis: ^4.0.0
+  build_runner: ^2.3.3
+  hive_generator:

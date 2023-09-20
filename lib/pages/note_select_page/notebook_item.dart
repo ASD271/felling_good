@@ -35,13 +35,18 @@ class NoteFrame<T extends NoteSelectController> extends StatelessWidget {
             ),
           ),
         ),
-        Obx(() => Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Text(
-              '  ${notebookController.showedOpinion.value.content}',
-              style: const TextStyle(fontSize: 18),
-              maxLines: 5,
-            ))),
+        Obx(() => GestureDetector(
+          onTap: () {
+            notebookController.refreshOpinion();
+          },
+          child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Text(
+                '  ${notebookController.showedOpinion.value.content}',
+                style: const TextStyle(fontSize: 18),
+                maxLines: 5,
+              )),
+        )),
         SizedBox(
           height: 50,
           width: Get.width,

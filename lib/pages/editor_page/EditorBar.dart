@@ -28,23 +28,23 @@ class EditorBar extends StatelessWidget implements PreferredSize {
       //   dirSelectPageController.currentDir.value.title
       // ),
       actions: [
-        IconButton(
-          onPressed: () => _insertTimeStamp(
-            editorController.controller,
-            DateTime.now().toString(),
-          ),
-          icon: const Icon(Icons.add_alarm_rounded),
-        ),
-        IconButton(
-          onPressed: () => showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              content: Text(editorController.controller.document.toPlainText(
-                  [...FlutterQuillEmbeds.builders(), TimeStampEmbedBuilderWidget()])),
-            ),
-          ),
-          icon: const Icon(Icons.text_fields_rounded),
-        ),
+        // IconButton(
+        //   onPressed: () => _insertTimeStamp(
+        //     editorController.controller,
+        //     DateTime.now().toString(),
+        //   ),
+        //   icon: const Icon(Icons.add_alarm_rounded),
+        // ),
+        // IconButton(
+        //   onPressed: () => showDialog(
+        //     context: context,
+        //     builder: (context) => AlertDialog(
+        //       content: Text(editorController.controller.document.toPlainText(
+        //           [...FlutterQuillEmbeds.builders(), TimeStampEmbedBuilderWidget()])),
+        //     ),
+        //   ),
+        //   icon: const Icon(Icons.text_fields_rounded),
+        // ),
         IconButton(
             onPressed: () => editorController.back(), icon: const Icon(Icons.arrow_back)),
         IconButton(
